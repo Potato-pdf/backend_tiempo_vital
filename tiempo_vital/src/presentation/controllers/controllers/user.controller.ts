@@ -1,8 +1,12 @@
-import { UserInterface } from "../../../domain/types/user/user.interface";
-import { AppDataSource } from "../../../infrestructure/db/database.connection"
+import { CreateUserRequest, UserInterface } from "../../../domain/types/user/user.interface";
+import { CreateUserUseCase} from "../../../application/services/create-user.service";
+import { TypeORMUserRepository } from "../../../infrestructure/repositories/user.repository";
+import { AppDataSource } from "../../../infrestructure/db/database.connection";
 import { User } from "../../../domain/models/users/user.model";
 
-const UserRepository = AppDataSource.getRepository(User);
+const userRepository = new TypeORMUserRepository(AppDataSource.getRepository(User));
+const createUserUseCase = new CreateUserUseCase(userRepository);
+
 export const CreateUser = async (c: any) => {
     try {
         const user_body: UserInterface = await c.req.json();
@@ -10,25 +14,23 @@ export const CreateUser = async (c: any) => {
             c.status(400);
             return c.json({ message: "Missing required fields" });
         }
-        const existingUser = await UserRepository.findOneBy({ email: user_body.email });
-        if (existingUser) {
-            c.status(409);
-            return c.json({ message: "User with this email already exists" });
-        }
-        const PasswordENcrypted = await Bun.password.hash(user_body.password);
-        const UUID : string = crypto.randomUUID();
-        const newUser = UserRepository.create({
-            id : UUID,
+
+        const request: CreateUserRequest = {
             name: user_body.name,
             email: user_body.email,
-            password: PasswordENcrypted,
-            rol: user_body.rol
-            });
-        await UserRepository.save(newUser);
+            password: user_body.password,
+            rol: user_body.rol,
+        };
+
+        const newUser = await createUserUseCase.execute(request);
         c.status(201);
         return c.json(newUser);
-    } catch (error) {
+    } catch (error: any) {
+        if (error.message === "User with this email already exists") {
+            c.status(409);
+            return c.json({ message: error.message });
+        }
         c.status(500);
-        return c.json({ message: "Error creating user", error });
+        return c.json({ message: "Error creating user", error: error.message });
     }
 }
