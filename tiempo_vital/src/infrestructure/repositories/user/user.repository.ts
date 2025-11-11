@@ -1,6 +1,6 @@
 import { Repository } from "typeorm";
 import { User } from "../../../domain/models/users/user.model";
-import { UserRepository } from "../../../domain/repositories/user.repository";
+import { UserRepository } from "../../../domain/repositories/user/user.repository";
 
 export class TypeORMUserRepository implements UserRepository {
     constructor(private userRepository: Repository<User>) {}
