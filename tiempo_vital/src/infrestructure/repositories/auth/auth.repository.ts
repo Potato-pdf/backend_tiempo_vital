@@ -9,10 +9,10 @@ export class TypeORMAuthRepository implements  AuthRepository{
     async findByEmail(email: string): Promise<any> {
         return await this.userRepository.findOneBy({ email });
     }
-    async passwordVerify(password: any): Promise<any> {
+    async passwordVerify(password: string): Promise<any> {
          await Bun.password.verify(this.userRepository.password, this.userRepository.password)
     }
-    async createToken(user: any): Promise<any> {
+    async createToken(user: User): Promise<any> {
         
     }
 }
