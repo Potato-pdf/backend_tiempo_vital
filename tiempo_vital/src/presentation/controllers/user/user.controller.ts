@@ -1,5 +1,5 @@
 import { CreateUserRequest, UserInterface } from "../../../domain/types/user/user.interface";
-import { CreateUserUseCase} from "../../../application/services/create-user.service";
+import { CreateUserUseCase} from "../../../application/services/user/create-user.service";
 import { TypeORMUserRepository } from "../../../infrestructure/repositories/user/user.repository";
 import { AppDataSource } from "../../../infrestructure/db/database.connection";
 import { User } from "../../../domain/models/users/user.model";
