@@ -1,4 +1,5 @@
-import { Column, Entity, PrimaryColumn } from "typeorm";
+import { Column, Entity, PrimaryColumn, OneToMany } from "typeorm";
+import { Office } from "../office/office.model";
 
 
 @Entity()
@@ -17,4 +18,9 @@ export class User {
 
     @Column()
     rol!: string;
+
+    @OneToMany(() => Office, (office) => office.users,{
+        cascade: true,
+    })
+    office!: Office[];
 }
