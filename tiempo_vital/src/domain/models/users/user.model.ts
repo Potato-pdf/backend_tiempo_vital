@@ -6,10 +6,10 @@ import { Office } from "../office/office.model";
 export class User {
     @PrimaryColumn({ unique: true, readonly: true })
     id!: string;
-    
+
     @Column()
     name!: string;
-    
+
     @Column({ unique: true })
     email!: string;
 
@@ -19,7 +19,7 @@ export class User {
     @Column()
     rol!: string;
 
-    @OneToMany(() => Office, (office) => office.users,{
+    @OneToMany(() => Office, (office) => office.user, {
         cascade: true,
     })
     office!: Office[];

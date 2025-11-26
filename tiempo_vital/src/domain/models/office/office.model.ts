@@ -5,7 +5,7 @@ import { User } from "../users/user.model";
 export class Office {
     @PrimaryColumn({ unique: true, readonly: true })
     id!: string;
-    
+
     @Column()
     name!: string;
 
@@ -24,7 +24,7 @@ export class Office {
     @Column()
     userId!: string;
 
-    @ManyToOne(() => User, (user) => user.offices)
+    @ManyToOne(() => User, (user) => user.office)
     user!: User;
 
 }
