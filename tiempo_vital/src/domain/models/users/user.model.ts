@@ -7,10 +7,8 @@ export class User {
     @PrimaryColumn({ unique: true, readonly: true })
     id!: string;
 
-
     @Column()
     name!: string;
-
 
     @Column({ unique: true })
     email!: string;
