@@ -1,14 +1,9 @@
-export interface UserInterface {
-    id?: string;
-    name: string;
-    email: string;
-    password: string;
-    rol: string;
-}
+import { OfficeInterface } from "../office/office.interface";
 
-export interface CreateUserRequest {
+export interface UserInterface {
     name: string;
     email: string;
     password: string;
     rol: string;
+    office: OfficeInterface[];
 }
