@@ -1,14 +1,15 @@
-import { Column, Entity, PrimaryColumn } from "typeorm";
+import { Column, Entity, PrimaryColumn, OneToMany } from "typeorm";
+import { Office } from "../office/office.model";
 
 
 @Entity()
 export class User {
     @PrimaryColumn({ unique: true, readonly: true })
     id!: string;
-    
+
     @Column()
     name!: string;
-    
+
     @Column({ unique: true })
     email!: string;
 
@@ -17,4 +18,7 @@ export class User {
 
     @Column()
     rol!: string;
+
+    @OneToMany(() => Office, (Office) => Office.user)
+    offices!: Office[];
 }
