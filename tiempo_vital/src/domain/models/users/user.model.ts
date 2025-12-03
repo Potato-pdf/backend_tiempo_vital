@@ -1,7 +1,5 @@
 import { Column, Entity, PrimaryColumn, OneToMany } from "typeorm";
 import { Office } from "../office/office.model";
-import { Column, Entity, PrimaryColumn, OneToMany } from "typeorm";
-import { Office } from "../office/office.model";
 
 
 @Entity()
