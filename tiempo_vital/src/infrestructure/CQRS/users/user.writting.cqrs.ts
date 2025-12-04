@@ -26,5 +26,5 @@ export class UserCQRS implements UserInterfaceCqrs {
     }
     async delete(id: string): Promise<void> {
         return this.userDao.delete(id);
-    }   
+    }
 }
