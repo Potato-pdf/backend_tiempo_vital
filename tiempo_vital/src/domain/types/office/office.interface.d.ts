@@ -1,4 +1,5 @@
 export interface OfficeInterface {
+    id: string;
     name: string;
     address: string;
     city: string;
