@@ -1,6 +1,6 @@
-import { UserRepository } from "../../domain/repositories/user.repository";
-import { User } from "../../domain/models/users/user.model";
-import { CreateUserRequest } from "../../domain/types/user/user.interface";
+import { UserRepository } from "../../../domain/repositories/user/user.repository";
+import { User } from "../../../domain/models/users/user.model";
+import { CreateUserRequest } from "../../../domain/types/user/user.interface";
 
 export class CreateUserUseCase {
     constructor(private userRepository: UserRepository) {}

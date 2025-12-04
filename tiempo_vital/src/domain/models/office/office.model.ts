@@ -1,5 +1,6 @@
-import { Column, Entity, PrimaryColumn, ManyToOne } from "typeorm";
+import { Column, Entity, ManyToOne, PrimaryColumn } from "typeorm";
 import { User } from "../users/user.model";
+
 
 @Entity()
 export class Office {
@@ -12,19 +13,7 @@ export class Office {
     @Column()
     address!: string;
 
-    @Column()
-    city!: string;
-
-    @Column()
-    state!: string;
-
-    @Column()
-    zipCode!: string;
-
-    @Column()
-    userId!: string;
-
-    @ManyToOne(() => User, (user) => user.office)
+    @ManyToOne(() => User, (User) => User.offices)
     user!: User;
 
 }

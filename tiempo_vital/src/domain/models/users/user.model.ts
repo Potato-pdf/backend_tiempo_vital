@@ -19,6 +19,9 @@ export class User {
     @Column()
     rol!: string;
 
+    @OneToMany(() => Office, (Office) => Office.user)
+    offices!: Office[];
+
     @OneToMany(() => Office, (office) => office.user, {
         cascade: true,
     })
