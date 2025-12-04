@@ -1,5 +1,10 @@
 import { Hono } from "hono";
+import { loginController, registerController } from "../../controllers/auth/auth.controller";
 
-export const AuthRoutes = new Hono()
+export const AuthRoutes = new Hono();
 
-AuthRoutes.post("/login", )
+// POST /auth/login
+AuthRoutes.post("/login", loginController);
+
+// POST /auth/register
+AuthRoutes.post("/register", registerController);
