@@ -4,6 +4,7 @@ import { cors } from 'hono/cors'
 import { logger } from 'hono/logger'
 import { prettyJSON } from 'hono/pretty-json'
 import { UserRoutes } from './application/routes/user/user.routes'
+import { AuthRoutes } from './application/routes/auth/auth.routes'
 import { AppDataSource } from './infrestructure/db/database.connection'
 
 const app = new Hono()
@@ -14,6 +15,7 @@ app.use(logger())
 app.use(prettyJSON())
 
 //routes
+app.route("/auth", AuthRoutes);
 app.route("/user", UserRoutes);
 //server
 AppDataSource.initialize()
