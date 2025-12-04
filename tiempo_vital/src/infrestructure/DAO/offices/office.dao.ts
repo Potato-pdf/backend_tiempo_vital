@@ -33,7 +33,7 @@ export class OfficeDAO implements OfficeInterfaceDao {
     }
 
     async update(id: string, office: OfficeInterface): Promise<OfficeInterface> {
-        const updatedOffice = await this.officeRepository.save({ id, ...office } as any);
+        const updatedOffice = await this.officeRepository.save({...office, id } as any);
         return updatedOffice as unknown as OfficeInterface;
     }
 

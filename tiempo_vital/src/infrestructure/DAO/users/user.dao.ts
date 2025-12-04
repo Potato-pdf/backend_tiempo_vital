@@ -40,7 +40,7 @@ export class UserDAO implements UsersInterfaceDao {
     }
 
     async update(id: string, user: UserInterface): Promise<UserInterface> {
-        const updatedUser = await this.userRepository.save({ id, ...user } as any);
+        const updatedUser = await this.userRepository.save({ ...user, id } as any);
         return updatedUser as unknown as UserInterface;
     }
 
