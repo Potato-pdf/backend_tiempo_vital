@@ -6,8 +6,12 @@ import {
     updateUserController,
     deleteUserController
 } from "../../controllers/user/user.controller";
+import { jwtMiddleware } from "../../middlewares/auth.middleware";
 
 export const UserRoutes = new Hono();
+
+// Aplicar JWT middleware a TODAS las rutas de user
+UserRoutes.use("/*", jwtMiddleware);
 
 // GET /user - Obtener todos los usuarios
 UserRoutes.get("/", getAllUsersController);
