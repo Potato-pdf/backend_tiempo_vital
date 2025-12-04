@@ -8,7 +8,7 @@ import { OfficeDAO } from "../../../infrestructure/DAO/offices/office.dao";
 const officeDao = new OfficeDAO();
 const officeQuery = new OfficeQuery(officeDao);
 const officeCommand = new OfficeCQRS(officeDao);
-// TODO: Crear OfficeService similar a UserService
+const officeService = new OfficeService(officeQuery, officeCommand);
 
 /**
  * Obtener todas las oficinas
@@ -16,8 +16,7 @@ const officeCommand = new OfficeCQRS(officeDao);
  */
 export const getAllOfficesController = async (c: Context) => {
     try {
-        // TODO: Implementar usando officeService.getAllOffices()
-        const offices = await officeQuery.findAll();
+        const offices = await officeService.getAllOffices();
 
         return c.json({
             success: true,
@@ -48,8 +47,7 @@ export const getOfficeByIdController = async (c: Context) => {
             }, 400);
         }
 
-        // TODO: Implementar
-        const office = await officeQuery.findById(id);
+        const office = await officeService.getOfficeById(id);
 
         if (!office) {
             return c.json({
@@ -81,12 +79,21 @@ export const createOfficeController = async (c: Context) => {
         const body = await c.req.json();
         const { name, address, city, state, zipCode, userId } = body;
 
-        // TODO: Validación completa
+        // Validación básica
         if (!name || !address || !city || !state || !zipCode || !userId) {
             return c.json({
                 success: false,
-                message: "Todos los campos son requeridos"
+                message: "Todos los campos son requeridos: name, address, city, state, zipCode, userId"
             }, 400);
+        }
+
+        // Verificar si la oficina ya existe por nombre
+        const existingOffice = await officeService.getOfficeByName(name);
+        if (existingOffice) {
+            return c.json({
+                success: false,
+                message: "Ya existe una oficina con ese nombre"
+            }, 409);
         }
 
         const newOffice = {
@@ -99,8 +106,7 @@ export const createOfficeController = async (c: Context) => {
             userId
         };
 
-        // TODO: Usar officeService.createOffice()
-        const createdOffice = await officeCommand.create(newOffice);
+        const createdOffice = await officeService.createOffice(newOffice);
 
         return c.json({
             success: true,
@@ -126,13 +132,34 @@ export const updateOfficeController = async (c: Context) => {
         const id = c.req.param("id");
         const body = await c.req.json();
 
-        // TODO: Implementar validación y actualización completa
-        // Usar el patrón del updateUserController
+        if (!id) {
+            return c.json({
+                success: false,
+                message: "ID es requerido"
+            }, 400);
+        }
+
+        // Verificar si la oficina existe
+        const existingOffice = await officeService.getOfficeById(id);
+        if (!existingOffice) {
+            return c.json({
+                success: false,
+                message: "Oficina no encontrada"
+            }, 404);
+        }
+
+        // Actualizar oficina
+        const updatedOffice = await officeService.updateOffice(id, {
+            ...existingOffice,
+            ...body,
+            id // Asegurar que no se cambie el ID
+        });
 
         return c.json({
             success: true,
-            message: "Implementar actualización de oficina"
-        }, 501); // 501 = Not Implemented
+            message: "Oficina actualizada exitosamente",
+            data: updatedOffice
+        }, 200);
 
     } catch (error) {
         console.error("Error actualizando oficina:", error);
@@ -151,13 +178,28 @@ export const deleteOfficeController = async (c: Context) => {
     try {
         const id = c.req.param("id");
 
-        // TODO: Implementar validación y eliminación completa
-        // Usar el patrón del deleteUserController
+        if (!id) {
+            return c.json({
+                success: false,
+                message: "ID es requerido"
+            }, 400);
+        }
+
+        // Verificar si la oficina existe
+        const existingOffice = await officeService.getOfficeById(id);
+        if (!existingOffice) {
+            return c.json({
+                success: false,
+                message: "Oficina no encontrada"
+            }, 404);
+        }
+
+        await officeService.deleteOffice(id);
 
         return c.json({
             success: true,
-            message: "Implementar eliminación de oficina"
-        }, 501); // 501 = Not Implemented
+            message: "Oficina eliminada exitosamente"
+        }, 200);
 
     } catch (error) {
         console.error("Error eliminando oficina:", error);
