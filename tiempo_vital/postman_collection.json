@@ -1,0 +1,329 @@
+{
+  "info": {
+    "name": "Backend Tiempo Vital API",
+    "description": "Colección de endpoints para API Tiempo Vital",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Register",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Juan Pérez\",\n  \"email\": \"juan@example.com\",\n  \"password\": \"password123\",\n  \"rol\": \"admin\",\n  \"office\": []\n}"
+            },
+            "url": {
+              "raw": "http://localhost:7000/auth/register",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "7000",
+              "path": ["auth", "register"]
+            }
+          }
+        },
+        {
+          "name": "Login",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"juan@example.com\",\n  \"password\": \"password123\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:7000/auth/login",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "7000",
+              "path": ["auth", "login"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Users",
+      "item": [
+        {
+          "name": "Get All Users",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "description": "JWT Token del login"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:7000/user",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "7000",
+              "path": ["user"]
+            }
+          }
+        },
+        {
+          "name": "Get User By ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:7000/user/:id",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "7000",
+              "path": ["user", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": ""
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Create User",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"María García\",\n  \"email\": \"maria@example.com\",\n  \"password\": \"password123\",\n  \"rol\": \"user\",\n  \"office\": []\n}"
+            },
+            "url": {
+              "raw": "http://localhost:7000/user",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "7000",
+              "path": ["user"]
+            }
+          }
+        },
+        {
+          "name": "Update User",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"María García Actualizada\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:7000/user/:id",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "7000",
+              "path": ["user", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": ""
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Delete User",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:7000/user/:id",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "7000",
+              "path": ["user", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": ""
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Offices",
+      "item": [
+        {
+          "name": "Get All Offices",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:7000/office",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "7000",
+              "path": ["office"]
+            }
+          }
+        },
+        {
+          "name": "Get Office By ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:7000/office/:id",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "7000",
+              "path": ["office", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": ""
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Create Office",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Oficina Central\",\n  \"address\": \"Av. Principal 123\",\n  \"city\": \"Ciudad de México\",\n  \"state\": \"CDMX\",\n  \"zipCode\": \"01000\",\n  \"userId\": \"uuid-del-usuario\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:7000/office",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "7000",
+              "path": ["office"]
+            }
+          }
+        },
+        {
+          "name": "Update Office",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Oficina Central Actualizada\"\n}"
+            },
+            "url": {
+              "raw": "http://localhost:7000/office/:id",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "7000",
+              "path": ["office", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": ""
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Delete Office",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "http://localhost:7000/office/:id",
+              "protocol": "http",
+              "host": ["localhost"],
+              "port": "7000",
+              "path": ["office", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": ""
+                }
+              ]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
