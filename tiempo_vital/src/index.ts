@@ -5,6 +5,7 @@ import { logger } from 'hono/logger'
 import { prettyJSON } from 'hono/pretty-json'
 import { UserRoutes } from './application/routes/user/user.routes'
 import { AuthRoutes } from './application/routes/auth/auth.routes'
+import { OfficeRoutes } from './application/routes/office/office.routes'
 import { AppDataSource } from './infrestructure/db/database.connection'
 
 const app = new Hono()
@@ -17,6 +18,7 @@ app.use(prettyJSON())
 //routes
 app.route("/auth", AuthRoutes);
 app.route("/user", UserRoutes);
+app.route("/office", OfficeRoutes);
 //server
 AppDataSource.initialize()
     .then(() => {
