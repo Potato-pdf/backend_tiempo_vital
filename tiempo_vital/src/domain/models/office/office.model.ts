@@ -1,6 +1,4 @@
 import { Column, Entity, ManyToOne, PrimaryColumn } from "typeorm";
-import { User } from "../users/user.model";
-
 
 @Entity()
 export class Office {
@@ -13,7 +11,18 @@ export class Office {
     @Column()
     address!: string;
 
-    @ManyToOne(() => User, (User) => User.offices)
-    user!: User;
+    @Column()
+    city!: string;
 
+    @Column()
+    state!: string;
+
+    @Column()
+    zipCode!: string;
+
+    @Column()
+    userId!: string;
+
+    @ManyToOne("User", "offices")
+    user!: any;
 }
