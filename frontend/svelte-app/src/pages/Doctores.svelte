@@ -118,6 +118,7 @@
       userId,
       image: officeImage,
     };
+    console.log("Submitting office data:", data);
 
     try {
       if (editingOffice) {
