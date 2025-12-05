@@ -32,7 +32,13 @@
 
       if (response.success) {
         authStore.login(response.user, response.token);
-        navigate("/doctores");
+        
+        // Redirigir según el rol del usuario
+        if (response.user.rol === "admin") {
+          navigate("/administracion");
+        } else {
+          navigate("/doctores");
+        }
       } else {
         error = response.message || "Error en el login";
       }
@@ -68,7 +74,13 @@
 
       if (response.success) {
         authStore.login(response.user, response.token);
-        navigate("/doctores");
+        
+        // Redirigir según el rol del usuario
+        if (response.user.rol === "admin") {
+          navigate("/administracion");
+        } else {
+          navigate("/doctores");
+        }
       } else {
         error = response.message || "Error en el registro";
       }
