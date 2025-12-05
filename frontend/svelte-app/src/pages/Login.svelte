@@ -6,6 +6,7 @@
   let isLogin = true;
   let loading = false;
   let error = "";
+  let successMessage = "";
 
   // Login form
   let loginEmail = "";
@@ -33,7 +34,6 @@
       if (response.success) {
         authStore.login(response.user, response.token);
         
-        // Redirigir según el rol del usuario
         if (response.user.rol === "admin") {
           navigate("/administracion");
         } else {
@@ -62,6 +62,7 @@
 
     loading = true;
     error = "";
+    successMessage = "";
 
     try {
       const response = await api.register({
@@ -73,14 +74,18 @@
       });
 
       if (response.success) {
-        authStore.login(response.user, response.token);
+        successMessage = "¡Registro exitoso! Por favor inicia sesión.";
+        isLogin = true;
+        loginEmail = registerEmail;
         
-        // Redirigir según el rol del usuario
-        if (response.user.rol === "admin") {
-          navigate("/administracion");
-        } else {
-          navigate("/doctores");
-        }
+        registerName = "";
+        registerEmail = "";
+        registerPassword = "";
+        registerConfirmPassword = "";
+        
+        setTimeout(() => {
+          successMessage = "";
+        }, 5000);
       } else {
         error = response.message || "Error en el registro";
       }
@@ -94,399 +99,369 @@
   function toggleForm() {
     isLogin = !isLogin;
     error = "";
+    successMessage = "";
   }
 </script>
 
-<div class="login-container">
-  <!-- Left side - Illustration -->
-  <div class="illustration-side">
-    <div class="logo-container">
-      <img src="/logo.png" alt="Tiempo Vital Logo" class="logo" />
-      <h1 class="brand-name">Tiempo Vital</h1>
-    </div>
-
-    <div class="illustration-content">
-      <img
-        src="/login-illustration.png"
-        alt="Healthcare"
-        class="illustration-image"
-      />
-      <h2 class="tagline">Gestión médica simplificada</h2>
-      <p class="description">
-        Administra consultorios, doctores y pacientes de manera eficiente y
-        profesional.
-      </p>
-    </div>
-
-    <div class="decoration-circles">
-      <div class="circle circle-1"></div>
-      <div class="circle circle-2"></div>
-      <div class="circle circle-3"></div>
-    </div>
-  </div>
-
-  <!-- Right side - Form -->
-  <div class="form-side">
-    <div class="form-container">
-      <div class="form-header">
-        <h2 class="form-title">
-          {isLogin ? "Iniciar Sesión" : "Crear Cuenta"}
-        </h2>
-        <p class="form-subtitle">
-          {isLogin
-            ? "Ingresa tus credenciales para continuar"
-            : "Completa tus datos para registrarte"}
-        </p>
-      </div>
-
-      {#if error}
-        <div class="alert alert-error">
-          <svg
-            class="alert-icon"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-            />
-          </svg>
-          <span>{error}</span>
+<div class="auth-page">
+  <div class="auth-container" class:register-mode={!isLogin}>
+    <!-- Form Panel -->
+    <div class="form-panel">
+      <div class="form-content">
+        <div class="logo-header">
+          <div class="logo-circle">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          </div>
+          <h1>Tiempo Vital</h1>
         </div>
-      {/if}
 
-      {#if isLogin}
-        <!-- Login Form -->
-        <form on:submit|preventDefault={handleLogin} class="form">
-          <div class="form-group">
-            <label for="email">Correo Electrónico</label>
-            <input
-              type="email"
-              id="email"
-              bind:value={loginEmail}
-              placeholder="tu@ejemplo.com"
-              required
-            />
+        <div class="form-header">
+          <h2>{isLogin ? "Bienvenido" : "Crear Cuenta"}</h2>
+          <p>{isLogin ? "Ingresa tus credenciales para continuar" : "Regístrate como doctor en el sistema"}</p>
+        </div>
+
+        {#if successMessage}
+          <div class="alert success">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <span>{successMessage}</span>
           </div>
+        {/if}
 
-          <div class="form-group">
-            <label for="password">Contraseña</label>
-            <input
-              type="password"
-              id="password"
-              bind:value={loginPassword}
-              placeholder="••••••••"
-              required
-            />
+        {#if error}
+          <div class="alert error">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <span>{error}</span>
           </div>
+        {/if}
 
-          <button
-            type="submit"
-            class="btn btn-primary btn-full"
-            disabled={loading}
-          >
-            {#if loading}
-              <div class="spinner-small"></div>
-              <span>Iniciando sesión...</span>
-            {:else}
-              Iniciar Sesión
-            {/if}
-          </button>
-        </form>
-      {:else}
-        <!-- Register Form -->
-        <form on:submit|preventDefault={handleRegister} class="form">
-          <div class="form-group">
-            <label for="name">Nombre Completo</label>
-            <input
-              type="text"
-              id="name"
-              bind:value={registerName}
-              placeholder="Juan Pérez"
-              required
-            />
-          </div>
+        {#if isLogin}
+          <form on:submit|preventDefault={handleLogin} class="auth-form">
+            <div class="input-group">
+              <label>Correo Electrónico</label>
+              <input
+                type="email"
+                bind:value={loginEmail}
+                placeholder="doctor@ejemplo.com"
+                required
+              />
+            </div>
 
-          <div class="form-group">
-            <label for="reg-email">Correo Electrónico</label>
-            <input
-              type="email"
-              id="reg-email"
-              bind:value={registerEmail}
-              placeholder="tu@ejemplo.com"
-              required
-            />
-          </div>
-
-          <div class="form-group">
-            <label for="rol">Rol</label>
-            <select id="rol" bind:value={registerRol} required>
-              <option value="doctor">Doctor</option>
-              <option value="admin">Administrador</option>
-            </select>
-          </div>
-
-          <div class="form-row">
-            <div class="form-group">
-              <label for="reg-password">Contraseña</label>
+            <div class="input-group">
+              <label>Contraseña</label>
               <input
                 type="password"
-                id="reg-password"
-                bind:value={registerPassword}
+                bind:value={loginPassword}
                 placeholder="••••••••"
                 required
               />
             </div>
 
-            <div class="form-group">
-              <label for="confirm-password">Confirmar Contraseña</label>
+            <button type="submit" class="btn-submit" disabled={loading}>
+              {#if loading}
+                <div class="spinner"></div>
+                Iniciando sesión...
+              {:else}
+                Iniciar Sesión
+              {/if}
+            </button>
+          </form>
+        {:else}
+          <form on:submit|preventDefault={handleRegister} class="auth-form">
+            <div class="input-group">
+              <label>Nombre Completo</label>
               <input
-                type="password"
-                id="confirm-password"
-                bind:value={registerConfirmPassword}
-                placeholder="••••••••"
+                type="text"
+                bind:value={registerName}
+                placeholder="Dr. Juan Pérez"
                 required
               />
             </div>
-          </div>
 
-          <button
-            type="submit"
-            class="btn btn-primary btn-full"
-            disabled={loading}
-          >
-            {#if loading}
-              <div class="spinner-small"></div>
-              <span>Registrando...</span>
-            {:else}
-              Crear Cuenta
-            {/if}
-          </button>
-        </form>
-      {/if}
+            <div class="input-group">
+              <label>Correo Electrónico</label>
+              <input
+                type="email"
+                bind:value={registerEmail}
+                placeholder="doctor@ejemplo.com"
+                required
+              />
+            </div>
 
-      <div class="form-footer">
-        <p>
-          {isLogin ? "¿No tienes una cuenta?" : "¿Ya tienes una cuenta?"}
-          <button type="button" on:click={toggleForm} class="link-button">
-            {isLogin ? "Regístrate aquí" : "Inicia sesión"}
-          </button>
-        </p>
+            <div class="input-row">
+              <div class="input-group">
+                <label>Contraseña</label>
+                <input
+                  type="password"
+                  bind:value={registerPassword}
+                  placeholder="••••••••"
+                  required
+                />
+              </div>
+
+              <div class="input-group">
+                <label>Confirmar</label>
+                <input
+                  type="password"
+                  bind:value={registerConfirmPassword}
+                  placeholder="••••••••"
+                  required
+                />
+              </div>
+            </div>
+
+            <button type="submit" class="btn-submit" disabled={loading}>
+              {#if loading}
+                <div class="spinner"></div>
+                Registrando...
+              {:else}
+                Crear Cuenta
+              {/if}
+            </button>
+          </form>
+        {/if}
+
+        <div class="form-toggle">
+          <p>
+            {isLogin ? "¿No tienes cuenta?" : "¿Ya tienes cuenta?"}
+            <button type="button" on:click={toggleForm}>
+              {isLogin ? "Regístrate" : "Inicia sesión"}
+            </button>
+          </p>
+        </div>
       </div>
+    </div>
+
+    <!-- Image Panel -->
+    <div class="image-panel">
+      <div class="image-overlay"></div>
+      <img 
+        src={isLogin ? "/login-image.png" : "/register-image.png"} 
+        alt={isLogin ? "Login" : "Register"}
+        class="panel-image"
+      />
     </div>
   </div>
 </div>
 
 <style>
-  .login-container {
-    display: flex;
-    min-height: 100vh;
-    width: 100%;
-  }
-
-  /* Illustration Side */
-  .illustration-side {
-    flex: 1;
-    background-color: var(--color-primary);
-    color: var(--color-white);
-    padding: var(--spacing-8);
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    position: relative;
-    overflow: hidden;
-  }
-
-  .logo-container {
-    display: flex;
-    align-items: center;
-    gap: var(--spacing-3);
-    z-index: 2;
-  }
-
-  .logo {
-    width: 50px;
-    height: 50px;
-    filter: brightness(0) invert(1);
-  }
-
-  .brand-name {
-    font-size: 1.75rem;
-    font-weight: 800;
-    color: var(--color-white);
+  * {
     margin: 0;
+    padding: 0;
+    box-sizing: border-box;
   }
 
-  .illustration-content {
-    flex: 1;
+  .auth-page {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #06b6d4 0%, #10b981 100%);
+    padding: 0;
+  }
+
+  .auth-container {
+    width: 100%;
+    height: 100vh;
+    background: white;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    overflow: hidden;
+    position: relative;
+  }
+
+  /* Swap layout for register mode */
+  .auth-container.register-mode .form-panel {
+    order: 2;
+  }
+
+  .auth-container.register-mode .image-panel {
+    order: 1;
+  }
+
+  /* Form Panel */
+  .form-panel {
+    padding: 60px 80px;
     display: flex;
     flex-direction: column;
     justify-content: center;
-    align-items: center;
-    text-align: center;
+    background: white;
+    transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
     z-index: 2;
-    padding: var(--spacing-12) 0;
   }
 
-  .illustration-image {
+  .form-content {
+    max-width: 450px;
+    margin: 0 auto;
     width: 100%;
-    max-width: 500px;
-    height: auto;
-    margin-bottom: var(--spacing-6);
-    animation: fadeIn 1s ease-out;
   }
 
-  .tagline {
-    font-size: 2rem;
-    font-weight: 700;
-    margin-bottom: var(--spacing-4);
-    color: var(--color-white);
+  .logo-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 48px;
   }
 
-  .description {
-    font-size: 1.125rem;
-    max-width: 400px;
-    opacity: 0.95;
-    line-height: 1.6;
-  }
-
-  /* Decoration Circles */
-  .decoration-circles {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    top: 0;
-    left: 0;
-    overflow: hidden;
-    pointer-events: none;
-  }
-
-  .circle {
-    position: absolute;
-    border-radius: 50%;
-    background-color: rgba(255, 255, 255, 0.05);
-    animation: float 20s infinite ease-in-out;
-  }
-
-  .circle-1 {
-    width: 300px;
-    height: 300px;
-    top: -150px;
-    right: -100px;
-    animation-delay: 0s;
-  }
-
-  .circle-2 {
-    width: 250px;
-    height: 250px;
-    bottom: -100px;
-    left: -80px;
-    animation-delay: 5s;
-  }
-
-  .circle-3 {
-    width: 180px;
-    height: 180px;
-    top: 50%;
-    left: 10%;
-    animation-delay: 10s;
-  }
-
-  @keyframes float {
-    0%,
-    100% {
-      transform: translateY(0) scale(1);
-    }
-    50% {
-      transform: translateY(-30px) scale(1.05);
-    }
-  }
-
-  /* Form Side */
-  .form-side {
-    flex: 1;
+  .logo-circle {
+    width: 56px;
+    height: 56px;
+    background: linear-gradient(135deg, #06b6d4 0%, #10b981 100%);
+    border-radius: 14px;
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: var(--spacing-6);
-    background-color: var(--color-white);
+    box-shadow: 0 4px 14px rgba(6, 182, 212, 0.3);
   }
 
-  .form-container {
-    width: 100%;
-    max-width: 480px;
-    animation: slideInRight 0.6s ease-out;
+  .logo-circle svg {
+    width: 32px;
+    height: 32px;
+    stroke: white;
+  }
+
+  .logo-header h1 {
+    font-size: 1.875rem;
+    font-weight: 800;
+    background: linear-gradient(135deg, #06b6d4 0%, #10b981 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
   }
 
   .form-header {
-    margin-bottom: var(--spacing-8);
+    margin-bottom: 36px;
   }
 
-  .form-title {
-    font-size: 2rem;
+  .form-header h2 {
+    font-size: 2.25rem;
     font-weight: 800;
-    color: var(--color-gray-900);
-    margin-bottom: var(--spacing-2);
+    color: #0f172a;
+    margin-bottom: 10px;
   }
 
-  .form-subtitle {
-    color: var(--color-gray-600);
+  .form-header p {
+    color: #64748b;
     font-size: 1rem;
-    margin: 0;
+    line-height: 1.5;
   }
 
   .alert {
     display: flex;
     align-items: center;
-    gap: var(--spacing-3);
-    padding: var(--spacing-4);
-    border-radius: var(--radius-md);
-    margin-bottom: var(--spacing-6);
-    font-size: 0.875rem;
+    gap: 12px;
+    padding: 16px 18px;
+    border-radius: 12px;
+    margin-bottom: 28px;
+    font-size: 0.9375rem;
+    font-weight: 500;
+    animation: slideIn 0.3s ease;
   }
 
-  .alert-error {
-    background-color: #fee2e2;
-    color: #991b1b;
-    border: 1px solid #fca5a5;
+  @keyframes slideIn {
+    from {
+      opacity: 0;
+      transform: translateY(-10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
   }
 
-  .alert-icon {
-    width: 20px;
-    height: 20px;
+  .alert svg {
+    width: 22px;
+    height: 22px;
     flex-shrink: 0;
   }
 
-  .form {
-    display: flex;
-    flex-direction: column;
-    gap: var(--spacing-6);
+  .alert.success {
+    background: #d1fae5;
+    color: #065f46;
+    border: 2px solid #6ee7b7;
   }
 
-  .form-group {
-    display: flex;
-    flex-direction: column;
-    gap: var(--spacing-2);
+  .alert.error {
+    background: #fee2e2;
+    color: #991b1b;
+    border: 2px solid #fca5a5;
   }
 
-  .form-row {
+  .auth-form {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+  }
+
+  .input-group {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .input-group label {
+    font-size: 0.9375rem;
+    font-weight: 600;
+    color: #1e293b;
+  }
+
+  .input-group input {
+    padding: 14px 18px;
+    border: 2px solid #e2e8f0;
+    border-radius: 12px;
+    font-size: 1rem;
+    transition: all 0.2s;
+    background: #f8fafc;
+  }
+
+  .input-group input:focus {
+    outline: none;
+    border-color: #06b6d4;
+    background: white;
+    box-shadow: 0 0 0 4px rgba(6, 182, 212, 0.1);
+  }
+
+  .input-row {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: var(--spacing-4);
+    gap: 18px;
   }
 
-  .btn-full {
-    width: 100%;
-    padding: var(--spacing-4);
+  .btn-submit {
+    margin-top: 12px;
+    padding: 16px;
+    background: linear-gradient(135deg, #06b6d4 0%, #10b981 100%);
+    color: white;
+    border: none;
+    border-radius: 12px;
     font-size: 1.0625rem;
     font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    box-shadow: 0 4px 16px rgba(6, 182, 212, 0.4);
   }
 
-  .spinner-small {
-    display: inline-block;
+  .btn-submit:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 24px rgba(6, 182, 212, 0.5);
+  }
+
+  .btn-submit:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+  }
+
+  .spinner {
     width: 18px;
     height: 18px;
     border: 2px solid rgba(255, 255, 255, 0.3);
@@ -495,60 +470,105 @@
     animation: spin 0.6s linear infinite;
   }
 
-  .btn-primary:disabled {
-    opacity: 0.7;
-    cursor: not-allowed;
+  @keyframes spin {
+    to { transform: rotate(360deg); }
   }
 
-  .form-footer {
-    margin-top: var(--spacing-6);
+  .form-toggle {
+    margin-top: 28px;
     text-align: center;
   }
 
-  .form-footer p {
-    color: var(--color-gray-600);
-    font-size: 0.9375rem;
-    margin: 0;
+  .form-toggle p {
+    color: #64748b;
+    font-size: 1rem;
   }
 
-  .link-button {
+  .form-toggle button {
     background: none;
-    color: var(--color-primary);
-    font-weight: 600;
-    text-decoration: none;
     border: none;
-    padding: 0;
-    margin-left: var(--spacing-1);
+    color: #06b6d4;
+    font-weight: 700;
     cursor: pointer;
+    margin-left: 6px;
     transition: color 0.2s;
+    font-size: 1rem;
   }
 
-  .link-button:hover {
-    color: var(--color-primary-dark);
+  .form-toggle button:hover {
+    color: #0891b2;
     text-decoration: underline;
   }
 
+  /* Image Panel */
+  .image-panel {
+    position: relative;
+    overflow: hidden;
+    transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .panel-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+    transition: opacity 0.4s ease;
+  }
+
+  .image-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, rgba(6, 182, 212, 0.15) 0%, rgba(16, 185, 129, 0.15) 100%);
+    z-index: 1;
+    pointer-events: none;
+  }
+
   /* Responsive */
+  @media (max-width: 1024px) {
+    .form-panel {
+      padding: 50px 60px;
+    }
+  }
+
   @media (max-width: 968px) {
-    .login-container {
-      flex-direction: column;
+    .auth-container {
+      grid-template-columns: 1fr !important;
+      height: auto;
+      min-height: 100vh;
     }
 
-    .illustration-side {
-      min-height: 40vh;
-      padding: var(--spacing-6);
+    .auth-container.register-mode .form-panel,
+    .auth-container.register-mode .image-panel {
+      order: initial;
     }
 
-    .illustration-image {
-      max-width: 300px;
+    .image-panel {
+      display: none;
     }
 
-    .tagline {
-      font-size: 1.5rem;
+    .form-panel {
+      padding: 60px 40px;
+    }
+  }
+
+  @media (max-width: 640px) {
+    .form-panel {
+      padding: 40px 24px;
     }
 
-    .form-row {
+    .form-header h2 {
+      font-size: 1.875rem;
+    }
+
+    .input-row {
       grid-template-columns: 1fr;
+    }
+
+    .logo-header h1 {
+      font-size: 1.5rem;
     }
   }
 </style>

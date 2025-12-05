@@ -14,14 +14,14 @@ export class UserDAO implements UsersInterfaceDao {
     }
 
     async findAll(): Promise<UserInterface[]> {
-        const users = await this.userRepository.find({ relations: ['office'] });
+        const users = await this.userRepository.find({ relations: ['offices'] });
         return users as unknown as UserInterface[];
     }
 
     async findById(id: string): Promise<UserInterface | null> {
         const user = await this.userRepository.findOne({
             where: { id },
-            relations: ['office']
+            relations: ['offices']
         });
         return user as unknown as UserInterface | null;
     }
@@ -29,7 +29,7 @@ export class UserDAO implements UsersInterfaceDao {
     async findByEmail(email: string): Promise<UserInterface | null> {
         const user = await this.userRepository.findOne({
             where: { email },
-            relations: ['office']
+            relations: ['offices']
         });
         return user as unknown as UserInterface | null;
     }
