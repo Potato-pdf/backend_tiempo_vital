@@ -5,10 +5,18 @@
   import Navbar from "../components/Navbar.svelte";
 
   let token = "";
-  let offices = [];
+  let offices: any[] = [];
   let loading = true;
   let showModal = false;
-  let editingOffice = null;
+  let showWelcomeModal = false;
+  let showDeleteModal = false;
+  let editingOffice: any = null;
+  let officeToDelete: string | null = null;
+  let userId = "";
+
+  // Alerts
+  let successMessage = "";
+  let errorMessage = "";
 
   // Form fields
   let officeName = "";
@@ -16,7 +24,6 @@
   let officeCity = "";
   let officeState = "";
   let officeZipCode = "";
-  let userId = "";
 
   authStore.subscribe((state) => {
     token = state.token || "";
@@ -25,6 +32,12 @@
 
   onMount(async () => {
     await loadOffices();
+    // Check session storage for welcome modal
+    const hasSeenWelcome = sessionStorage.getItem("hasSeenWelcome");
+    if (!hasSeenWelcome) {
+      showWelcomeModal = true;
+      sessionStorage.setItem("hasSeenWelcome", "true");
+    }
   });
 
   async function loadOffices() {
@@ -32,7 +45,6 @@
     try {
       const response = await api.getOffices(token);
       const allOffices = response.data || [];
-      // Filter offices to show only those belonging to the current user
       offices = allOffices.filter((office: any) => office.userId === userId);
     } catch (error) {
       console.error("Error cargando oficinas:", error);
@@ -41,13 +53,29 @@
     }
   }
 
+  function showSuccess(msg: string) {
+    successMessage = msg;
+    errorMessage = "";
+    setTimeout(() => {
+      successMessage = "";
+    }, 3000);
+  }
+
+  function showError(msg: string) {
+    errorMessage = msg;
+    successMessage = "";
+    setTimeout(() => {
+      errorMessage = "";
+    }, 3000);
+  }
+
   function openCreateModal() {
     editingOffice = null;
     resetForm();
     showModal = true;
   }
 
-  function openEditModal(office) {
+  function openEditModal(office: any) {
     editingOffice = office;
     officeName = office.name;
     officeAddress = office.address;
@@ -78,23 +106,34 @@
     try {
       if (editingOffice) {
         await api.updateOffice(token, editingOffice.id, data);
+        showSuccess("Consultorio actualizado correctamente");
       } else {
         await api.createOffice(token, data);
+        showSuccess("Consultorio creado correctamente");
       }
       showModal = false;
       await loadOffices();
     } catch (error) {
-      alert("Error al guardar oficina");
+      showError("Error al guardar consultorio");
     }
   }
 
-  async function handleDelete(id) {
-    if (confirm("¿Estás seguro de eliminar esta oficina?")) {
+  function confirmDelete(id: string) {
+    officeToDelete = id;
+    showDeleteModal = true;
+  }
+
+  async function handleDelete() {
+    if (officeToDelete) {
       try {
-        await api.deleteOffice(token, id);
+        await api.deleteOffice(token, officeToDelete);
         await loadOffices();
+        showSuccess("Consultorio eliminado correctamente");
       } catch (error) {
-        alert("Error al eliminar oficina");
+        showError("Error al eliminar consultorio");
+      } finally {
+        showDeleteModal = false;
+        officeToDelete = null;
       }
     }
   }
@@ -102,35 +141,72 @@
 
 <Navbar />
 
-<div class="container page-container">
+<div class="container-fluid page-container">
   <div class="page-header">
     <div class="header-content">
-      <h1 class="page-title">Mis Consultorios</h1>
+      <h1 class="page-title">Gestión de Consultorios</h1>
       <p class="page-subtitle">
-        Administra la información de tus consultorios médicos
+        Administra tu red de consultorios médicos de manera eficiente
       </p>
-      <button on:click={openCreateModal} class="btn btn-primary mt-4">
-        <svg
-          width="20"
-          height="20"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="M12 4v16m8-8H4"
-          />
-        </svg>
-        Nuevo Consultorio
-      </button>
     </div>
-    <div class="header-decoration">
-      <img src="/dashboard-bg.png" alt="Decoración" class="decoration-img" />
-    </div>
+    <button on:click={openCreateModal} class="btn btn-primary btn-lg">
+      <svg
+        width="24"
+        height="24"
+        fill="none"
+        stroke="currentColor"
+        viewBox="0 0 24 24"
+      >
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          d="M12 4v16m8-8H4"
+        />
+      </svg>
+      Nuevo Consultorio
+    </button>
   </div>
+
+  {#if successMessage}
+    <div class="alert success fade-in">
+      <svg
+        width="24"
+        height="24"
+        fill="none"
+        stroke="currentColor"
+        viewBox="0 0 24 24"
+      >
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+        />
+      </svg>
+      {successMessage}
+    </div>
+  {/if}
+
+  {#if errorMessage}
+    <div class="alert error fade-in">
+      <svg
+        width="24"
+        height="24"
+        fill="none"
+        stroke="currentColor"
+        viewBox="0 0 24 24"
+      >
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+        />
+      </svg>
+      {errorMessage}
+    </div>
+  {/if}
 
   {#if loading}
     <div class="loading-container">
@@ -155,7 +231,10 @@
         </svg>
       </div>
       <h3>No tienes consultorios registrados</h3>
-      <p>Comienza registrando tu primer consultorio médico</p>
+      <p>
+        Comienza registrando tu primer consultorio médico para gestionar tus
+        citas.
+      </p>
       <button on:click={openCreateModal} class="btn btn-primary mt-4">
         Crear Consultorio
       </button>
@@ -167,8 +246,8 @@
           <div class="office-header">
             <div class="office-icon">
               <svg
-                width="24"
-                height="24"
+                width="32"
+                height="32"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -183,15 +262,15 @@
             </div>
             <div class="office-title">
               <h3>{office.name}</h3>
-              <span class="badge badge-info">Activo</span>
+              <span class="badge badge-success">Activo</span>
             </div>
           </div>
 
           <div class="office-details">
             <div class="detail-item">
               <svg
-                width="18"
-                height="18"
+                width="20"
+                height="20"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -213,8 +292,8 @@
             </div>
             <div class="detail-item">
               <svg
-                width="18"
-                height="18"
+                width="20"
+                height="20"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -230,8 +309,8 @@
             </div>
             <div class="detail-item">
               <svg
-                width="18"
-                height="18"
+                width="20"
+                height="20"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -250,14 +329,42 @@
           <div class="office-actions">
             <button
               on:click={() => openEditModal(office)}
-              class="btn btn-secondary w-full justify-center"
+              class="btn btn-outline-primary"
             >
+              <svg
+                width="18"
+                height="18"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                />
+              </svg>
               Editar
             </button>
             <button
-              on:click={() => handleDelete(office.id)}
-              class="btn btn-danger w-full justify-center"
+              on:click={() => confirmDelete(office.id)}
+              class="btn btn-outline-danger"
             >
+              <svg
+                width="18"
+                height="18"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                />
+              </svg>
               Eliminar
             </button>
           </div>
@@ -267,12 +374,238 @@
   {/if}
 </div>
 
+<!-- Welcome Modal -->
+{#if showWelcomeModal}
+  <div
+    class="modal-overlay"
+    role="dialog"
+    aria-modal="true"
+    on:click={() => (showWelcomeModal = false)}
+    on:keydown={(e) => e.key === "Escape" && (showWelcomeModal = false)}
+  >
+    <div
+      class="modal welcome-modal"
+      role="document"
+      on:click|stopPropagation
+      on:keydown|stopPropagation
+    >
+      <div class="welcome-image">
+        <img src="/crud.jpg" alt="Bienvenido" />
+      </div>
+      <div class="welcome-content">
+        <h2>¡Bienvenido a tu Panel!</h2>
+        <p>
+          Desde aquí podrás gestionar todos tus consultorios médicos. Puedes
+          agregar nuevos consultorios, editar su información o eliminarlos si es
+          necesario.
+        </p>
+        <div class="welcome-features">
+          <div class="feature">
+            <div class="feature-icon bg-blue">
+              <svg
+                width="20"
+                height="20"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M12 4v16m8-8H4"
+                />
+              </svg>
+            </div>
+            <span>Crear nuevos registros</span>
+          </div>
+          <div class="feature">
+            <div class="feature-icon bg-green">
+              <svg
+                width="20"
+                height="20"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                />
+              </svg>
+            </div>
+            <span>Actualizar información</span>
+          </div>
+          <div class="feature">
+            <div class="feature-icon bg-red">
+              <svg
+                width="20"
+                height="20"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                />
+              </svg>
+            </div>
+            <span>Eliminar registros</span>
+          </div>
+        </div>
+        <button
+          on:click={() => (showWelcomeModal = false)}
+          class="btn btn-primary w-full"
+        >
+          Comenzar
+        </button>
+      </div>
+    </div>
+  </div>
+{/if}
+
+<!-- Create/Edit Modal -->
 {#if showModal}
-  <div class="modal-overlay" on:click={() => (showModal = false)}>
-    <div class="modal" on:click|stopPropagation>
+  <div
+    class="modal-overlay"
+    role="dialog"
+    aria-modal="true"
+    on:click={() => (showModal = false)}
+    on:keydown={(e) => e.key === "Escape" && (showModal = false)}
+  >
+    <div
+      class="modal form-modal"
+      role="document"
+      on:click|stopPropagation
+      on:keydown|stopPropagation
+    >
+      <div class="modal-form-container">
+        <div class="modal-header">
+          <h2>{editingOffice ? "Editar" : "Nuevo"} Consultorio</h2>
+          <button on:click={() => (showModal = false)} class="btn-close">
+            <svg
+              width="24"
+              height="24"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M6 18L18 6M6 6l12 12"
+              />
+            </svg>
+          </button>
+        </div>
+
+        <form on:submit|preventDefault={handleSubmit} class="modal-form">
+          <div class="form-group">
+            <label for="name">Nombre del Consultorio</label>
+            <input
+              type="text"
+              id="name"
+              bind:value={officeName}
+              placeholder="Ej. Consultorio Central"
+              required
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="address">Dirección</label>
+            <input
+              type="text"
+              id="address"
+              bind:value={officeAddress}
+              placeholder="Calle Principal #123"
+              required
+            />
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="city">Ciudad</label>
+              <input
+                type="text"
+                id="city"
+                bind:value={officeCity}
+                placeholder="Ciudad"
+                required
+              />
+            </div>
+
+            <div class="form-group">
+              <label for="state">Estado</label>
+              <input
+                type="text"
+                id="state"
+                bind:value={officeState}
+                placeholder="Estado"
+                required
+              />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="zipCode">Código Postal</label>
+            <input
+              type="text"
+              id="zipCode"
+              bind:value={officeZipCode}
+              placeholder="00000"
+              required
+            />
+          </div>
+
+          <div class="modal-actions">
+            <button
+              type="button"
+              on:click={() => (showModal = false)}
+              class="btn btn-secondary"
+            >
+              Cancelar
+            </button>
+            <button type="submit" class="btn btn-primary">
+              {editingOffice ? "Actualizar" : "Crear"}
+            </button>
+          </div>
+        </form>
+      </div>
+      <div class="modal-image-side">
+        <img src="/rosa.jpg" alt="Decoración" />
+        <div class="image-overlay">
+          <h3>Tiempo Vital</h3>
+          <p>Cuidando tu salud y la de tus pacientes</p>
+        </div>
+      </div>
+    </div>
+  </div>
+{/if}
+
+<!-- Delete Confirmation Modal -->
+{#if showDeleteModal}
+  <div
+    class="modal-overlay"
+    role="dialog"
+    aria-modal="true"
+    on:click={() => (showDeleteModal = false)}
+    on:keydown={(e) => e.key === "Escape" && (showDeleteModal = false)}
+  >
+    <div
+      class="modal delete-modal"
+      role="document"
+      on:click|stopPropagation
+      on:keydown|stopPropagation
+    >
       <div class="modal-header">
-        <h2>{editingOffice ? "Editar" : "Nuevo"} Consultorio</h2>
-        <button on:click={() => (showModal = false)} class="btn-close">
+        <h2>Confirmar Eliminación</h2>
+        <button on:click={() => (showDeleteModal = false)} class="btn-close">
           <svg
             width="24"
             height="24"
@@ -289,83 +622,52 @@
           </svg>
         </button>
       </div>
-
-      <form on:submit|preventDefault={handleSubmit} class="modal-form">
-        <div class="form-group">
-          <label for="name">Nombre del Consultorio</label>
-          <input
-            type="text"
-            id="name"
-            bind:value={officeName}
-            placeholder="Ej. Consultorio Central"
-            required
-          />
-        </div>
-
-        <div class="form-group">
-          <label for="address">Dirección</label>
-          <input
-            type="text"
-            id="address"
-            bind:value={officeAddress}
-            placeholder="Calle Principal #123"
-            required
-          />
-        </div>
-
-        <div class="form-row">
-          <div class="form-group">
-            <label for="city">Ciudad</label>
-            <input
-              type="text"
-              id="city"
-              bind:value={officeCity}
-              placeholder="Ciudad"
-              required
-            />
-          </div>
-
-          <div class="form-group">
-            <label for="state">Estado</label>
-            <input
-              type="text"
-              id="state"
-              bind:value={officeState}
-              placeholder="Estado"
-              required
-            />
-          </div>
-        </div>
-
-        <div class="form-group">
-          <label for="zipCode">Código Postal</label>
-          <input
-            type="text"
-            id="zipCode"
-            bind:value={officeZipCode}
-            placeholder="00000"
-            required
-          />
-        </div>
-
-        <div class="modal-actions">
-          <button
-            type="button"
-            on:click={() => (showModal = false)}
-            class="btn btn-secondary"
+      <div class="modal-content">
+        <div class="delete-icon">
+          <svg
+            width="48"
+            height="48"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
           >
-            Cancelar
-          </button>
-          <button type="submit" class="btn btn-primary">
-            {editingOffice ? "Actualizar" : "Crear"}
-          </button>
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+            />
+          </svg>
         </div>
-      </form>
+        <p>
+          ¿Estás seguro de que deseas eliminar este consultorio? Esta acción no
+          se puede deshacer.
+        </p>
+      </div>
+      <div class="modal-actions">
+        <button
+          on:click={() => (showDeleteModal = false)}
+          class="btn btn-secondary"
+        >
+          Cancelar
+        </button>
+        <button on:click={handleDelete} class="btn btn-danger">
+          Eliminar
+        </button>
+      </div>
     </div>
   </div>
 {/if}
 
 <style>
+  .container-fluid {
+    width: 100%;
+    padding-left: var(--spacing-8);
+    padding-right: var(--spacing-8);
+    max-width: 1800px;
+    margin: 0 auto;
+  }
+
   .page-container {
     padding-top: var(--spacing-8);
     padding-bottom: var(--spacing-12);
@@ -383,91 +685,63 @@
     border: 1px solid var(--color-gray-200);
   }
 
-  .header-content {
-    flex: 1;
-  }
-
-  .header-decoration {
-    width: 200px;
-    height: 120px;
-    border-radius: var(--radius-lg);
-    overflow: hidden;
-    margin-left: var(--spacing-6);
-  }
-
-  .decoration-img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
-
   .page-title {
     color: var(--color-primary);
     margin-bottom: var(--spacing-2);
+    font-size: 1.75rem;
   }
 
   .page-subtitle {
-    font-size: 1rem;
+    font-size: 1.125rem;
     color: var(--color-gray-600);
   }
 
-  .loading-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: var(--spacing-12);
-    gap: var(--spacing-4);
+  .btn-lg {
+    padding: var(--spacing-3) var(--spacing-6);
+    font-size: 1.125rem;
   }
 
-  .empty-state {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: var(--spacing-12);
-    text-align: center;
-    background-color: var(--color-white);
-    border-radius: var(--radius-lg);
-    box-shadow: var(--shadow-sm);
-    border: 1px dashed var(--color-gray-300);
-  }
-
-  .empty-icon-container {
-    width: 80px;
-    height: 80px;
-    background-color: var(--color-gray-100);
-    border-radius: 50%;
+  .alert {
     display: flex;
     align-items: center;
-    justify-content: center;
-    margin-bottom: var(--spacing-4);
+    gap: var(--spacing-3);
+    padding: var(--spacing-4);
+    border-radius: var(--radius-md);
+    margin-bottom: var(--spacing-6);
+    font-weight: 500;
+    font-size: 1.125rem;
   }
 
-  .empty-icon {
-    width: 40px;
-    height: 40px;
-    color: var(--color-gray-400);
+  .alert.success {
+    background-color: var(--color-success-bg);
+    color: #065f46;
+    border: 1px solid #6ee7b7;
+  }
+
+  .alert.error {
+    background-color: var(--color-error-bg);
+    color: #991b1b;
+    border: 1px solid #fca5a5;
   }
 
   .offices-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
-    gap: var(--spacing-6);
+    grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+    gap: var(--spacing-8);
   }
 
   .office-card {
     display: flex;
     flex-direction: column;
     height: 100%;
-    transition:
-      transform 0.2s,
-      box-shadow 0.2s;
+    transition: all 0.3s ease;
+    border: 1px solid var(--color-gray-200);
   }
 
   .office-card:hover {
-    transform: translateY(-4px);
-    box-shadow: var(--shadow-lg);
+    transform: translateY(-5px);
+    box-shadow: var(--shadow-xl);
+    border-color: var(--color-primary-light);
   }
 
   .office-header {
@@ -480,29 +754,35 @@
   }
 
   .office-icon {
-    width: 48px;
-    height: 48px;
-    border-radius: var(--radius-md);
-    background-color: var(--color-primary-bg);
+    width: 56px;
+    height: 56px;
+    border-radius: var(--radius-lg);
+    background: linear-gradient(
+      135deg,
+      var(--color-primary-bg) 0%,
+      #e0f2fe 100%
+    );
     color: var(--color-primary);
     display: flex;
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
+    box-shadow: var(--shadow-sm);
   }
 
   .office-title h3 {
-    font-size: 1.125rem;
+    font-size: 1.25rem;
     margin-bottom: var(--spacing-1);
     line-height: 1.2;
+    color: var(--color-gray-900);
   }
 
   .office-details {
     flex: 1;
     display: flex;
     flex-direction: column;
-    gap: var(--spacing-3);
-    margin-bottom: var(--spacing-6);
+    gap: var(--spacing-4);
+    margin-bottom: var(--spacing-8);
   }
 
   .detail-item {
@@ -510,7 +790,7 @@
     align-items: center;
     gap: var(--spacing-3);
     color: var(--color-gray-600);
-    font-size: 0.9375rem;
+    font-size: 1rem;
   }
 
   .detail-item svg {
@@ -522,65 +802,203 @@
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: var(--spacing-3);
-    padding-top: var(--spacing-4);
-    border-top: 1px solid var(--color-gray-100);
   }
 
-  /* Modal */
+  .btn-outline-primary {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--spacing-2);
+    padding: var(--spacing-2) var(--spacing-4);
+    border: 1px solid var(--color-primary);
+    color: var(--color-primary);
+    background: white;
+    border-radius: var(--radius-md);
+    font-weight: 600;
+    transition: all 0.2s;
+  }
+
+  .btn-outline-primary:hover {
+    background-color: var(--color-primary);
+    color: white;
+  }
+
+  .btn-outline-danger {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--spacing-2);
+    padding: var(--spacing-2) var(--spacing-4);
+    border: 1px solid var(--color-error);
+    color: var(--color-error);
+    background: white;
+    border-radius: var(--radius-md);
+    font-weight: 600;
+    transition: all 0.2s;
+  }
+
+  .btn-outline-danger:hover {
+    background-color: var(--color-error);
+    color: white;
+  }
+
+  /* Modal Styles */
   .modal-overlay {
     position: fixed;
     top: 0;
     left: 0;
     right: 0;
     bottom: 0;
-    background-color: rgba(0, 0, 0, 0.5);
+    background-color: rgba(0, 0, 0, 0.6);
     display: flex;
     align-items: center;
     justify-content: center;
     z-index: 50;
-    backdrop-filter: blur(4px);
+    backdrop-filter: blur(5px);
   }
 
   .modal {
     background: white;
     border-radius: var(--radius-xl);
+    box-shadow: var(--shadow-2xl);
+    animation: zoomIn 0.3s ease-out;
+    overflow: hidden;
+  }
+
+  @keyframes zoomIn {
+    from {
+      opacity: 0;
+      transform: scale(0.95);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+
+  /* Welcome Modal */
+  .welcome-modal {
     width: 100%;
-    max-width: 550px;
-    box-shadow: var(--shadow-xl);
-    animation: slideInRight 0.3s ease-out;
+    max-width: 450px;
+    text-align: center;
+  }
+
+  .welcome-image {
+    width: 100%;
+    height: 200px;
+    overflow: hidden;
+  }
+
+  .welcome-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .welcome-content {
+    padding: var(--spacing-8);
+  }
+
+  .welcome-content h2 {
+    font-size: 1.5rem;
+    color: var(--color-gray-900);
+    margin-bottom: var(--spacing-4);
+  }
+
+  .welcome-content p {
+    color: var(--color-gray-600);
+    margin-bottom: var(--spacing-6);
+    line-height: 1.6;
+  }
+
+  .welcome-features {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-4);
+    margin-bottom: var(--spacing-8);
+    text-align: left;
+  }
+
+  .feature {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-4);
+    padding: var(--spacing-3);
+    background-color: var(--color-gray-50);
+    border-radius: var(--radius-lg);
+  }
+
+  .feature-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+  }
+
+  .bg-blue {
+    background-color: var(--color-primary);
+  }
+  .bg-green {
+    background-color: #10b981;
+  }
+  .bg-red {
+    background-color: #ef4444;
+  }
+
+  /* Form Modal */
+  .form-modal {
+    width: 100%;
+    max-width: 900px;
+    display: flex;
+    min-height: 500px;
+  }
+
+  .modal-form-container {
+    flex: 1;
+    padding: var(--spacing-8);
+  }
+
+  .modal-image-side {
+    width: 350px;
+    position: relative;
+    display: none;
+  }
+
+  @media (min-width: 768px) {
+    .modal-image-side {
+      display: block;
+    }
+  }
+
+  .modal-image-side img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .image-overlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: var(--spacing-8);
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.8), transparent);
+    color: white;
+  }
+
+  .image-overlay h3 {
+    font-size: 1.5rem;
+    margin-bottom: var(--spacing-2);
   }
 
   .modal-header {
-    padding: var(--spacing-6);
-    border-bottom: 1px solid var(--color-gray-200);
     display: flex;
     justify-content: space-between;
     align-items: center;
-  }
-
-  .modal-header h2 {
-    font-size: 1.25rem;
-    margin: 0;
-  }
-
-  .btn-close {
-    background: transparent;
-    color: var(--color-gray-400);
-    padding: var(--spacing-1);
-  }
-
-  .btn-close:hover {
-    color: var(--color-gray-600);
-  }
-
-  .modal-form {
-    padding: var(--spacing-6);
-  }
-
-  .form-row {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: var(--spacing-4);
+    margin-bottom: var(--spacing-6);
   }
 
   .modal-actions {
@@ -590,19 +1008,59 @@
     margin-top: var(--spacing-8);
   }
 
+  .btn-close {
+    background: transparent;
+    color: var(--color-gray-400);
+    padding: var(--spacing-1);
+    transition: color 0.2s;
+  }
+
+  .btn-close:hover {
+    color: var(--color-gray-600);
+  }
+
+  /* Delete Modal */
+  .delete-modal {
+    width: 100%;
+    max-width: 400px;
+    padding: var(--spacing-6);
+  }
+
+  .delete-icon {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    background-color: var(--color-error-bg);
+    color: var(--color-error);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto var(--spacing-4);
+  }
+
+  .modal-content {
+    text-align: center;
+    margin-bottom: var(--spacing-6);
+  }
+
+  .modal-content p {
+    color: var(--color-gray-600);
+    margin: 0;
+  }
+
   @media (max-width: 768px) {
+    .container-fluid {
+      padding-left: var(--spacing-4);
+      padding-right: var(--spacing-4);
+    }
+
     .page-header {
       flex-direction: column;
-      align-items: stretch;
       gap: var(--spacing-4);
       text-align: center;
     }
 
-    .header-decoration {
-      display: none;
-    }
-
-    .form-row {
+    .offices-grid {
       grid-template-columns: 1fr;
     }
   }
