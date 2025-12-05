@@ -5,5 +5,6 @@ export interface OfficeInterface {
     city: string;
     state: string;
     zipCode: string;
+    image?: string;
     userId: string;
 }

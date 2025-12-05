@@ -6,5 +6,6 @@ export interface UserInterface {
     email: string;
     password: string;
     rol: string;
+    image?: string;
     office: OfficeInterface[];
 }
