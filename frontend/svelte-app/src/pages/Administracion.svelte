@@ -79,13 +79,16 @@
     }
 
     async function handleUserSubmit() {
-        const data = {
+        const data: any = {
             name: userName,
             email: userEmail,
-            password: userPassword,
             rol: userRol,
             office: [],
         };
+
+        if (userPassword) {
+            data.password = userPassword;
+        }
 
         try {
             if (editingUser) {
@@ -266,6 +269,7 @@
                                                 editingUser = user;
                                                 userName = user.name;
                                                 userEmail = user.email;
+                                                userPassword = ""; // Clear password field
                                                 userRol = user.rol;
                                                 showUserModal = true;
                                             }}
