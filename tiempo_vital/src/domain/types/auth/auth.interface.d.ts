@@ -11,6 +11,7 @@ export interface LoginResponse {
         name: string;
         email: string;
         rol: string;
+        image?: string;
     };
     message?: string;
 }
