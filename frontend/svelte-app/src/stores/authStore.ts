@@ -5,6 +5,7 @@ interface User {
     name: string;
     email: string;
     rol: string;
+    image?: string;
 }
 
 interface AuthStore {
