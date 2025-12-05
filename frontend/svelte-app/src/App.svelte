@@ -5,6 +5,7 @@
   import Login from "./pages/Login.svelte";
   import Doctores from "./pages/Doctores.svelte";
   import Administracion from "./pages/Administracion.svelte";
+  import Perfil from "./pages/Perfil.svelte";
 
   let path = "/";
   let isAuthenticated = false;
@@ -25,6 +26,8 @@
     <Doctores />
   {:else if path === "/administracion"}
     <Administracion />
+  {:else if path === "/perfil"}
+    <Perfil />
   {:else}
     <Login />
   {/if}
