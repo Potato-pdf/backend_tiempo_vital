@@ -258,7 +258,7 @@
     <!-- Image Panel -->
     <div class="image-panel">
       <img
-        src={isLogin ? "/imagen.jpg" : "/register-image.jpg"}
+        src={isLogin ? "/register-image.jpg" : "/operando.jpg"}
         alt={isLogin ? "Login" : "Register"}
         class="panel-image"
       />
