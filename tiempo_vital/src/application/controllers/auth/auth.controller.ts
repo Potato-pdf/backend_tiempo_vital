@@ -98,7 +98,8 @@ export const registerController = async (c: Context) => {
                 id: createdUser.id,
                 name: createdUser.name,
                 email: createdUser.email,
-                rol: createdUser.rol
+                rol: createdUser.rol,
+                image: createdUser.image
             }
         }, 201);
 

@@ -194,7 +194,8 @@ export const updateUserController = async (c: Context) => {
             name: updatedUser.name,
             email: updatedUser.email,
             rol: updatedUser.rol,
-            office: updatedUser.office
+            office: updatedUser.office,
+            image: updatedUser.image
         };
 
         return c.json({
