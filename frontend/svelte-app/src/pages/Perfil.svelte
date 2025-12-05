@@ -19,12 +19,48 @@
     let secondaryColor = "#1E3A8A"; // Default blue
 
     const pastelColors = [
-        { name: "Azul", value: "#1E3A8A" },
-        { name: "Verde", value: "#10B981" },
-        { name: "Rosa", value: "#F472B6" },
-        { name: "Morado", value: "#A78BFA" },
-        { name: "Naranja", value: "#FB923C" },
-        { name: "Celeste", value: "#38BDF8" },
+        {
+            name: "Azul",
+            value: "#1E3A8A",
+            dark: "#172554",
+            light: "#60A5FA",
+            bg: "#EFF6FF",
+        },
+        {
+            name: "Verde",
+            value: "#10B981",
+            dark: "#047857",
+            light: "#34D399",
+            bg: "#ECFDF5",
+        },
+        {
+            name: "Rosa",
+            value: "#F472B6",
+            dark: "#BE185D",
+            light: "#FBCFE8",
+            bg: "#FDF2F8",
+        },
+        {
+            name: "Morado",
+            value: "#A78BFA",
+            dark: "#7C3AED",
+            light: "#C4B5FD",
+            bg: "#F5F3FF",
+        },
+        {
+            name: "Naranja",
+            value: "#FB923C",
+            dark: "#C2410C",
+            light: "#FDBA74",
+            bg: "#FFF7ED",
+        },
+        {
+            name: "Celeste",
+            value: "#38BDF8",
+            dark: "#0369A1",
+            light: "#7DD3FC",
+            bg: "#F0F9FF",
+        },
     ];
 
     authStore.subscribe((state) => {
@@ -49,7 +85,37 @@
 
     function updateColor(color: string) {
         secondaryColor = color;
-        document.documentElement.style.setProperty("--color-secondary", color);
+        const root = document.documentElement;
+        root.style.setProperty("--color-secondary", color);
+        // Also update primary color to match the selected theme
+        root.style.setProperty("--color-primary", color);
+        // We should ideally calculate dark/light variants, but for now let's use the same color
+        // or a slightly modified version if we had a function.
+        // For simplicity, we'll map the known colors to their dark/light variants or just use the main color
+        // assuming the user wants the main action color to change.
+
+        // Find the color object to get variants if we had them, or just set simple variants
+        // Since we don't have a color manipulation lib, we'll set primary-dark to the same or let it be.
+        // But to ensure visibility, let's set primary-dark to the same color for now,
+        // or maybe we can define the palette in the array.
+
+        const selectedColorObj = pastelColors.find((c) => c.value === color);
+        if (selectedColorObj && selectedColorObj.dark) {
+            root.style.setProperty(
+                "--color-primary-dark",
+                selectedColorObj.dark,
+            );
+            root.style.setProperty(
+                "--color-primary-light",
+                selectedColorObj.light,
+            );
+            root.style.setProperty("--color-primary-bg", selectedColorObj.bg);
+        } else {
+            // Fallback if we don't have variants defined yet
+            root.style.setProperty("--color-primary-dark", color);
+            root.style.setProperty("--color-primary-light", color);
+        }
+
         localStorage.setItem("secondaryColor", color);
     }
 

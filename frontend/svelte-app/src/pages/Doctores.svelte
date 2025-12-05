@@ -260,18 +260,42 @@
     <div class="offices-grid">
       {#each offices as office}
         <div class="card office-card">
-          <div class="office-header">
-            <div class="office-icon">
-              {#if office.image}
-                <img
-                  src={office.image}
-                  alt={office.name}
-                  class="office-img-icon"
+          {#if office.image}
+            <div class="office-image-header">
+              <img src={office.image} alt={office.name} />
+            </div>
+          {:else}
+            <div class="office-image-header placeholder">
+              <svg
+                width="48"
+                height="48"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"
                 />
-              {:else}
+              </svg>
+            </div>
+          {/if}
+
+          <div class="office-content">
+            <div class="office-header">
+              <div class="office-title">
+                <h3>{office.name}</h3>
+                <span class="badge badge-success">Activo</span>
+              </div>
+            </div>
+
+            <div class="office-details">
+              <div class="detail-item">
                 <svg
-                  width="32"
-                  height="32"
+                  width="20"
+                  height="20"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -280,119 +304,97 @@
                     stroke-linecap="round"
                     stroke-linejoin="round"
                     stroke-width="2"
-                    d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"
+                    d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
+                  />
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
                   />
                 </svg>
-              {/if}
+                <span>{office.address}</span>
+              </div>
+              <div class="detail-item">
+                <svg
+                  width="20"
+                  height="20"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"
+                  />
+                </svg>
+                <span>{office.city}, {office.state}</span>
+              </div>
+              <div class="detail-item">
+                <svg
+                  width="20"
+                  height="20"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+                  />
+                </svg>
+                <span>CP: {office.zipCode}</span>
+              </div>
             </div>
-            <div class="office-title">
-              <h3>{office.name}</h3>
-              <span class="badge badge-success">Activo</span>
-            </div>
-          </div>
 
-          <div class="office-details">
-            <div class="detail-item">
-              <svg
-                width="20"
-                height="20"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
+            <div class="office-actions">
+              <button
+                on:click={() => openEditModal(office)}
+                class="btn btn-outline-primary"
               >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
-                />
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
-                />
-              </svg>
-              <span>{office.address}</span>
-            </div>
-            <div class="detail-item">
-              <svg
-                width="20"
-                height="20"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
+                <svg
+                  width="18"
+                  height="18"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                  />
+                </svg>
+                Editar
+              </button>
+              <button
+                on:click={() => confirmDelete(office.id)}
+                class="btn btn-outline-danger"
               >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"
-                />
-              </svg>
-              <span>{office.city}, {office.state}</span>
-            </div>
-            <div class="detail-item">
-              <svg
-                width="20"
-                height="20"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
-                />
-              </svg>
-              <span>CP: {office.zipCode}</span>
+                <svg
+                  width="18"
+                  height="18"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                  />
+                </svg>
+                Eliminar
+              </button>
             </div>
           </div>
-
-          <div class="office-actions">
-            <button
-              on:click={() => openEditModal(office)}
-              class="btn btn-outline-primary"
-            >
-              <svg
-                width="18"
-                height="18"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
-                />
-              </svg>
-              Editar
-            </button>
-            <button
-              on:click={() => confirmDelete(office.id)}
-              class="btn btn-outline-danger"
-            >
-              <svg
-                width="18"
-                height="18"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-                />
-              </svg>
-              Eliminar
-            </button>
-          </div>
+          <!-- End office-content -->
         </div>
       {/each}
     </div>
@@ -828,45 +830,56 @@
     height: 100%;
     transition: all 0.3s ease;
     border: 1px solid var(--color-gray-200);
+    overflow: hidden; /* Ensure image doesn't overflow rounded corners */
+    padding: 0; /* Remove padding from card to let image be full width */
   }
 
-  .office-card:hover {
-    transform: translateY(-5px);
-    box-shadow: var(--shadow-xl);
-    border-color: var(--color-primary-light);
+  .office-image-header {
+    width: 100%;
+    height: 160px; /* Adjust height as needed */
+    overflow: hidden;
+    background-color: var(--color-gray-100);
+    position: relative;
   }
 
-  .office-header {
+  .office-image-header img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+  }
+
+  .office-card:hover .office-image-header img {
+    transform: scale(1.05);
+  }
+
+  .office-image-header.placeholder {
     display: flex;
     align-items: center;
-    gap: var(--spacing-4);
-    margin-bottom: var(--spacing-6);
-    padding-bottom: var(--spacing-4);
-    border-bottom: 1px solid var(--color-gray-100);
-  }
-
-  .office-icon {
-    width: 56px;
-    height: 56px;
-    border-radius: var(--radius-lg);
+    justify-content: center;
+    color: var(--color-gray-400);
     background: linear-gradient(
       135deg,
       var(--color-primary-bg) 0%,
       #e0f2fe 100%
     );
     color: var(--color-primary);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-    box-shadow: var(--shadow-sm);
-    overflow: hidden;
   }
 
-  .office-img-icon {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
+  .office-content {
+    padding: var(--spacing-6);
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+  }
+
+  .office-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: var(--spacing-4);
+    padding-bottom: 0;
+    border-bottom: none;
   }
 
   .office-title h3 {
