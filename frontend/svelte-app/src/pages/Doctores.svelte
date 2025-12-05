@@ -31,7 +31,9 @@
     loading = true;
     try {
       const response = await api.getOffices(token);
-      offices = response.data || [];
+      const allOffices = response.data || [];
+      // Filter offices to show only those belonging to the current user
+      offices = allOffices.filter((office: any) => office.userId === userId);
     } catch (error) {
       console.error("Error cargando oficinas:", error);
     } finally {
@@ -102,26 +104,32 @@
 
 <div class="container page-container">
   <div class="page-header">
-    <div>
+    <div class="header-content">
       <h1 class="page-title">Mis Consultorios</h1>
-      <p class="page-subtitle">Administra tus consultorios médicos</p>
+      <p class="page-subtitle">
+        Administra la información de tus consultorios médicos
+      </p>
+      <button on:click={openCreateModal} class="btn btn-primary mt-4">
+        <svg
+          width="20"
+          height="20"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M12 4v16m8-8H4"
+          />
+        </svg>
+        Nuevo Consultorio
+      </button>
     </div>
-    <button on:click={openCreateModal} class="btn btn-primary">
-      <svg
-        class="btn-icon"
-        fill="none"
-        stroke="currentColor"
-        viewBox="0 0 24 24"
-      >
-        <path
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          stroke-width="2"
-          d="M12 4v16m8-8H4"
-        />
-      </svg>
-      Nuevo Consultorio
-    </button>
+    <div class="header-decoration">
+      <img src="/dashboard-bg.png" alt="Decoración" class="decoration-img" />
+    </div>
   </div>
 
   {#if loading}
@@ -131,32 +139,40 @@
     </div>
   {:else if offices.length === 0}
     <div class="empty-state">
-      <svg
-        class="empty-icon"
-        fill="none"
-        stroke="currentColor"
-        viewBox="0 0 24 24"
-      >
-        <path
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          stroke-width="2"
-          d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"
-        />
-      </svg>
+      <div class="empty-icon-container">
+        <svg
+          class="empty-icon"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"
+          />
+        </svg>
+      </div>
       <h3>No tienes consultorios registrados</h3>
-      <p>Comienza creando tu primer consultorio</p>
-      <button on:click={openCreateModal} class="btn btn-primary">
+      <p>Comienza registrando tu primer consultorio médico</p>
+      <button on:click={openCreateModal} class="btn btn-primary mt-4">
         Crear Consultorio
       </button>
     </div>
   {:else}
     <div class="offices-grid">
       {#each offices as office}
-        <div class="office-card card">
+        <div class="card office-card">
           <div class="office-header">
             <div class="office-icon">
-              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg
+                width="24"
+                height="24"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
                 <path
                   stroke-linecap="round"
                   stroke-linejoin="round"
@@ -165,13 +181,17 @@
                 />
               </svg>
             </div>
-            <h3 class="office-name">{office.name}</h3>
+            <div class="office-title">
+              <h3>{office.name}</h3>
+              <span class="badge badge-info">Activo</span>
+            </div>
           </div>
 
           <div class="office-details">
             <div class="detail-item">
               <svg
-                class="detail-icon"
+                width="18"
+                height="18"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -193,7 +213,8 @@
             </div>
             <div class="detail-item">
               <svg
-                class="detail-icon"
+                width="18"
+                height="18"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -209,7 +230,8 @@
             </div>
             <div class="detail-item">
               <svg
-                class="detail-icon"
+                width="18"
+                height="18"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -228,29 +250,15 @@
           <div class="office-actions">
             <button
               on:click={() => openEditModal(office)}
-              class="btn-icon-action"
+              class="btn btn-secondary w-full justify-center"
             >
-              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
-                />
-              </svg>
+              Editar
             </button>
             <button
               on:click={() => handleDelete(office.id)}
-              class="btn-icon-action btn-delete"
+              class="btn btn-danger w-full justify-center"
             >
-              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-                />
-              </svg>
+              Eliminar
             </button>
           </div>
         </div>
@@ -265,7 +273,13 @@
       <div class="modal-header">
         <h2>{editingOffice ? "Editar" : "Nuevo"} Consultorio</h2>
         <button on:click={() => (showModal = false)} class="btn-close">
-          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg
+            width="24"
+            height="24"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
             <path
               stroke-linecap="round"
               stroke-linejoin="round"
@@ -279,29 +293,59 @@
       <form on:submit|preventDefault={handleSubmit} class="modal-form">
         <div class="form-group">
           <label for="name">Nombre del Consultorio</label>
-          <input type="text" id="name" bind:value={officeName} required />
+          <input
+            type="text"
+            id="name"
+            bind:value={officeName}
+            placeholder="Ej. Consultorio Central"
+            required
+          />
         </div>
 
         <div class="form-group">
           <label for="address">Dirección</label>
-          <input type="text" id="address" bind:value={officeAddress} required />
+          <input
+            type="text"
+            id="address"
+            bind:value={officeAddress}
+            placeholder="Calle Principal #123"
+            required
+          />
         </div>
 
         <div class="form-row">
           <div class="form-group">
             <label for="city">Ciudad</label>
-            <input type="text" id="city" bind:value={officeCity} required />
+            <input
+              type="text"
+              id="city"
+              bind:value={officeCity}
+              placeholder="Ciudad"
+              required
+            />
           </div>
 
           <div class="form-group">
             <label for="state">Estado</label>
-            <input type="text" id="state" bind:value={officeState} required />
+            <input
+              type="text"
+              id="state"
+              bind:value={officeState}
+              placeholder="Estado"
+              required
+            />
           </div>
         </div>
 
         <div class="form-group">
           <label for="zipCode">Código Postal</label>
-          <input type="text" id="zipCode" bind:value={officeZipCode} required />
+          <input
+            type="text"
+            id="zipCode"
+            bind:value={officeZipCode}
+            placeholder="00000"
+            required
+          />
         </div>
 
         <div class="modal-actions">
@@ -323,8 +367,8 @@
 
 <style>
   .page-container {
-    padding: var(--spacing-8) var(--spacing-6);
-    min-height: calc(100vh - 70px);
+    padding-top: var(--spacing-8);
+    padding-bottom: var(--spacing-12);
   }
 
   .page-header {
@@ -332,23 +376,39 @@
     justify-content: space-between;
     align-items: center;
     margin-bottom: var(--spacing-8);
+    background-color: var(--color-white);
+    padding: var(--spacing-8);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+    border: 1px solid var(--color-gray-200);
+  }
+
+  .header-content {
+    flex: 1;
+  }
+
+  .header-decoration {
+    width: 200px;
+    height: 120px;
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    margin-left: var(--spacing-6);
+  }
+
+  .decoration-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
   }
 
   .page-title {
-    font-size: 2rem;
-    color: var(--color-gray-900);
+    color: var(--color-primary);
     margin-bottom: var(--spacing-2);
   }
 
   .page-subtitle {
+    font-size: 1rem;
     color: var(--color-gray-600);
-    font-size: 1.125rem;
-  }
-
-  .btn-icon {
-    width: 20px;
-    height: 20px;
-    margin-right: var(--spacing-2);
   }
 
   .loading-container {
@@ -367,23 +427,47 @@
     justify-content: center;
     padding: var(--spacing-12);
     text-align: center;
+    background-color: var(--color-white);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+    border: 1px dashed var(--color-gray-300);
+  }
+
+  .empty-icon-container {
+    width: 80px;
+    height: 80px;
+    background-color: var(--color-gray-100);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: var(--spacing-4);
   }
 
   .empty-icon {
-    width: 80px;
-    height: 80px;
-    color: var(--color-gray-300);
-    margin-bottom: var(--spacing-4);
+    width: 40px;
+    height: 40px;
+    color: var(--color-gray-400);
   }
 
   .offices-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
     gap: var(--spacing-6);
   }
 
   .office-card {
-    position: relative;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    transition:
+      transform 0.2s,
+      box-shadow 0.2s;
+  }
+
+  .office-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-lg);
   }
 
   .office-header {
@@ -391,31 +475,30 @@
     align-items: center;
     gap: var(--spacing-4);
     margin-bottom: var(--spacing-6);
+    padding-bottom: var(--spacing-4);
+    border-bottom: 1px solid var(--color-gray-100);
   }
 
   .office-icon {
-    width: 50px;
-    height: 50px;
+    width: 48px;
+    height: 48px;
     border-radius: var(--radius-md);
-    background-color: var(--color-primary);
-    color: var(--color-white);
+    background-color: var(--color-primary-bg);
+    color: var(--color-primary);
     display: flex;
     align-items: center;
     justify-content: center;
+    flex-shrink: 0;
   }
 
-  .office-icon svg {
-    width: 28px;
-    height: 28px;
-  }
-
-  .office-name {
-    font-size: 1.5rem;
-    font-weight: 700;
-    color: var(--color-gray-900);
+  .office-title h3 {
+    font-size: 1.125rem;
+    margin-bottom: var(--spacing-1);
+    line-height: 1.2;
   }
 
   .office-details {
+    flex: 1;
     display: flex;
     flex-direction: column;
     gap: var(--spacing-3);
@@ -426,49 +509,24 @@
     display: flex;
     align-items: center;
     gap: var(--spacing-3);
-    color: var(--color-gray-700);
+    color: var(--color-gray-600);
+    font-size: 0.9375rem;
   }
 
-  .detail-icon {
-    width: 18px;
-    height: 18px;
+  .detail-item svg {
     color: var(--color-primary);
     flex-shrink: 0;
   }
 
   .office-actions {
-    display: flex;
-    gap: var(--spacing-2);
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--spacing-3);
     padding-top: var(--spacing-4);
-    border-top: 1px solid var(--color-gray-200);
+    border-top: 1px solid var(--color-gray-100);
   }
 
-  .btn-icon-action {
-    flex: 1;
-    padding: var(--spacing-3);
-    background-color: var(--color-gray-100);
-    color: var(--color-gray-700);
-    border-radius: var(--radius-md);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.2s;
-  }
-
-  .btn-icon-action svg {
-    width: 20px;
-    height: 20px;
-  }
-
-  .btn-icon-action:hover {
-    background-color: var(--color-primary);
-    color: var(--color-white);
-  }
-
-  .btn-delete:hover {
-    background-color: var(--color-error);
-  }
-
+  /* Modal */
   .modal-overlay {
     position: fixed;
     top: 0;
@@ -479,54 +537,40 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    z-index: 1000;
-    animation: fadeIn 0.2s ease;
+    z-index: 50;
+    backdrop-filter: blur(4px);
   }
 
   .modal {
-    background-color: var(--color-white);
+    background: white;
     border-radius: var(--radius-xl);
-    max-width: 600px;
-    width: 90%;
-    max-height: 90vh;
-    overflow-y: auto;
+    width: 100%;
+    max-width: 550px;
     box-shadow: var(--shadow-xl);
-    animation: slideInRight 0.3s ease;
+    animation: slideInRight 0.3s ease-out;
   }
 
   .modal-header {
+    padding: var(--spacing-6);
+    border-bottom: 1px solid var(--color-gray-200);
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: var(--spacing-6);
-    border-bottom: 1px solid var(--color-gray-200);
   }
 
   .modal-header h2 {
+    font-size: 1.25rem;
     margin: 0;
-    font-size: 1.5rem;
   }
 
   .btn-close {
-    width: 36px;
-    height: 36px;
-    border-radius: var(--radius-md);
-    background-color: var(--color-gray-100);
-    color: var(--color-gray-700);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.2s;
+    background: transparent;
+    color: var(--color-gray-400);
+    padding: var(--spacing-1);
   }
 
   .btn-close:hover {
-    background-color: var(--color-error);
-    color: var(--color-white);
-  }
-
-  .btn-close svg {
-    width: 20px;
-    height: 20px;
+    color: var(--color-gray-600);
   }
 
   .modal-form {
@@ -541,20 +585,21 @@
 
   .modal-actions {
     display: flex;
-    gap: var(--spacing-3);
     justify-content: flex-end;
-    margin-top: var(--spacing-6);
+    gap: var(--spacing-3);
+    margin-top: var(--spacing-8);
   }
 
   @media (max-width: 768px) {
     .page-header {
       flex-direction: column;
-      align-items: flex-start;
+      align-items: stretch;
       gap: var(--spacing-4);
+      text-align: center;
     }
 
-    .offices-grid {
-      grid-template-columns: 1fr;
+    .header-decoration {
+      display: none;
     }
 
     .form-row {
