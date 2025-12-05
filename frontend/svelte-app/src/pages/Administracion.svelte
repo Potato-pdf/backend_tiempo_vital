@@ -100,11 +100,14 @@
 
 <div class="container page-container">
     <div class="page-header">
-        <div>
-            <h1 class="page-title">Administración</h1>
+        <div class="header-content">
+            <h1 class="page-title">Panel de Administración</h1>
             <p class="page-subtitle">
-                Gestiona usuarios y consultorios del sistema
+                Gestiona usuarios y supervisa los consultorios registrados
             </p>
+        </div>
+        <div class="header-decoration">
+            <img src="/imagen.jpg" alt="Decoración" class="decoration-img" />
         </div>
     </div>
 
@@ -118,13 +121,11 @@
             <!-- Users Section -->
             <div class="admin-section">
                 <div class="section-header">
-                    <h2>Usuarios</h2>
-                    <button
-                        on:click={openCreateUser}
-                        class="btn btn-primary btn-sm"
-                    >
+                    <h2>Usuarios Registrados</h2>
+                    <button on:click={openCreateUser} class="btn btn-primary">
                         <svg
-                            class="btn-icon"
+                            width="20"
+                            height="20"
                             fill="none"
                             stroke="currentColor"
                             viewBox="0 0 24 24"
@@ -140,66 +141,100 @@
                     </button>
                 </div>
 
-                <div class="users-list">
-                    {#each users as user}
-                        <div class="user-item card">
-                            <div class="user-avatar">
-                                {user.name.charAt(0).toUpperCase()}
-                            </div>
-                            <div class="user-info-flex">
-                                <div>
-                                    <h3 class="user-name-item">{user.name}</h3>
-                                    <p class="user-email">{user.email}</p>
-                                    <span class="badge badge-{user.rol}"
-                                        >{user.rol}</span
-                                    >
-                                </div>
-                                <div class="user-stats">
-                                    <div class="stat">
-                                        <span class="stat-label"
-                                            >Consultorios</span
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Usuario</th>
+                                <th>Rol</th>
+                                <th>Consultorios</th>
+                                <th class="text-right">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {#each users as user}
+                                <tr>
+                                    <td>
+                                        <div class="user-cell">
+                                            <div class="user-avatar">
+                                                {user.name
+                                                    .charAt(0)
+                                                    .toUpperCase()}
+                                            </div>
+                                            <div>
+                                                <div class="font-bold">
+                                                    {user.name}
+                                                </div>
+                                                <div
+                                                    class="text-sm text-gray-500"
+                                                >
+                                                    {user.email}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <span
+                                            class="badge {user.rol === 'admin'
+                                                ? 'badge-error'
+                                                : 'badge-info'}"
                                         >
-                                        <span class="stat-value"
-                                            >{getUserOffices(user.id)
-                                                .length}</span
+                                            {user.rol === "admin"
+                                                ? "Administrador"
+                                                : "Doctor"}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <span class="font-medium">
+                                            {getUserOffices(user.id).length}
+                                        </span>
+                                    </td>
+                                    <td class="text-right">
+                                        <button
+                                            on:click={() =>
+                                                handleDeleteUser(user.id)}
+                                            class="btn-icon-only text-red-600 hover:bg-red-50"
+                                            title="Eliminar usuario"
                                         >
-                                    </div>
-                                </div>
-                            </div>
-                            <button
-                                on:click={() => handleDeleteUser(user.id)}
-                                class="btn-delete-small"
-                            >
-                                <svg
-                                    fill="none"
-                                    stroke="currentColor"
-                                    viewBox="0 0 24 24"
-                                >
-                                    <path
-                                        stroke-linecap="round"
-                                        stroke-linejoin="round"
-                                        stroke-width="2"
-                                        d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-                                    />
-                                </svg>
-                            </button>
-                        </div>
-                    {/each}
+                                            <svg
+                                                width="20"
+                                                height="20"
+                                                fill="none"
+                                                stroke="currentColor"
+                                                viewBox="0 0 24 24"
+                                            >
+                                                <path
+                                                    stroke-linecap="round"
+                                                    stroke-linejoin="round"
+                                                    stroke-width="2"
+                                                    d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                                                />
+                                            </svg>
+                                        </button>
+                                    </td>
+                                </tr>
+                            {/each}
+                        </tbody>
+                    </table>
                 </div>
             </div>
 
             <!-- Offices Section -->
             <div class="admin-section">
                 <div class="section-header">
-                    <h2>Todos los Consultorios</h2>
-                    <span class="count-badge">{offices.length}</span>
+                    <h2>Resumen de Consultorios</h2>
+                    <span class="badge badge-success"
+                        >{offices.length} Total</span
+                    >
                 </div>
 
-                <div class="offices-list">
+                <div class="offices-grid">
                     {#each offices as office}
-                        <div class="office-item-small card">
-                            <div class="office-icon-small">
+                        <div class="card office-card">
+                            <div class="office-icon">
                                 <svg
+                                    width="24"
+                                    height="24"
                                     fill="none"
                                     stroke="currentColor"
                                     viewBox="0 0 24 24"
@@ -212,11 +247,9 @@
                                     />
                                 </svg>
                             </div>
-                            <div>
-                                <h4 class="office-name-small">{office.name}</h4>
-                                <p class="office-location">
-                                    {office.city}, {office.state}
-                                </p>
+                            <div class="office-info">
+                                <h4>{office.name}</h4>
+                                <p>{office.city}, {office.state}</p>
                             </div>
                         </div>
                     {/each}
@@ -235,7 +268,13 @@
                     on:click={() => (showUserModal = false)}
                     class="btn-close"
                 >
-                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg
+                        width="24"
+                        height="24"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                    >
                         <path
                             stroke-linecap="round"
                             stroke-linejoin="round"
@@ -256,6 +295,7 @@
                         type="text"
                         id="name"
                         bind:value={userName}
+                        placeholder="Ej. Dr. Juan Pérez"
                         required
                     />
                 </div>
@@ -266,6 +306,7 @@
                         type="email"
                         id="email"
                         bind:value={userEmail}
+                        placeholder="correo@ejemplo.com"
                         required
                     />
                 </div>
@@ -276,12 +317,13 @@
                         type="password"
                         id="password"
                         bind:value={userPassword}
+                        placeholder="••••••••"
                         required
                     />
                 </div>
 
                 <div class="form-group">
-                    <label for="rol">Rol</label>
+                    <label for="rol">Rol de Usuario</label>
                     <select id="rol" bind:value={userRol} required>
                         <option value="doctor">Doctor</option>
                         <option value="admin">Administrador</option>
@@ -297,7 +339,7 @@
                         Cancelar
                     </button>
                     <button type="submit" class="btn btn-primary">
-                        {editingUser ? "Actualizar" : "Crear"}
+                        {editingUser ? "Actualizar Usuario" : "Crear Usuario"}
                     </button>
                 </div>
             </form>
@@ -307,212 +349,150 @@
 
 <style>
     .page-container {
-        padding: var(--spacing-8) var(--spacing-6);
-        min-height: calc(100vh - 70px);
+        padding-top: var(--spacing-8);
+        padding-bottom: var(--spacing-12);
     }
 
     .page-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
         margin-bottom: var(--spacing-8);
+        background-color: var(--color-white);
+        padding: var(--spacing-8);
+        border-radius: var(--radius-lg);
+        box-shadow: var(--shadow-sm);
+        border: 1px solid var(--color-gray-200);
+    }
+
+    .header-content {
+        flex: 1;
+    }
+
+    .header-decoration {
+        width: 200px;
+        height: 120px;
+        border-radius: var(--radius-lg);
+        overflow: hidden;
+        margin-left: var(--spacing-6);
+    }
+
+    .decoration-img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
     }
 
     .page-title {
-        font-size: 2rem;
-        color: var(--color-gray-900);
+        color: var(--color-primary);
         margin-bottom: var(--spacing-2);
     }
 
     .page-subtitle {
-        color: var(--color-gray-600);
         font-size: 1.125rem;
+        color: var(--color-gray-600);
+        max-width: 600px;
     }
 
     .admin-grid {
         display: grid;
-        grid-template-columns: 1.5fr 1fr;
-        gap: var(--spacing-6);
+        grid-template-columns: 2fr 1fr;
+        gap: var(--spacing-8);
     }
 
     .admin-section {
         display: flex;
         flex-direction: column;
-        gap: var(--spacing-4);
+        gap: var(--spacing-6);
     }
 
     .section-header {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        padding-bottom: var(--spacing-4);
-        border-bottom: 2px solid var(--color-gray-200);
     }
 
     .section-header h2 {
         font-size: 1.5rem;
+        color: var(--color-gray-800);
         margin: 0;
     }
 
-    .count-badge {
-        background-color: var(--color-primary);
-        color: var(--color-white);
-        padding: var(--spacing-2) var(--spacing-3);
-        border-radius: var(--radius-md);
-        font-weight: 700;
-    }
-
-    .btn-sm {
-        padding: var(--spacing-2) var(--spacing-4);
-        font-size: 0.875rem;
-    }
-
-    .btn-icon {
-        width: 16px;
-        height: 16px;
-        margin-right: var(--spacing-2);
-    }
-
-    .users-list,
-    .offices-list {
-        display: flex;
-        flex-direction: column;
-        gap: var(--spacing-4);
-    }
-
-    .user-item {
-        display: flex;
-        align-items: center;
-        gap: var(--spacing-4);
-        padding: var(--spacing-4);
-    }
-
-    .user-avatar {
-        width: 50px;
-        height: 50px;
-        border-radius: 50%;
-        background-color: var(--color-primary);
-        color: var(--color-white);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 1.5rem;
-        font-weight: 700;
-        flex-shrink: 0;
-    }
-
-    .user-info-flex {
-        flex: 1;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-    }
-
-    .user-name-item {
-        font-size: 1.125rem;
-        font-weight: 700;
-        margin-bottom: var(--spacing-1);
-    }
-
-    .user-email {
-        font-size: 0.875rem;
-        color: var(--color-gray-600);
-        margin-bottom: var(--spacing-2);
-    }
-
-    .badge {
-        display: inline-block;
-        padding: var(--spacing-1) var(--spacing-3);
-        border-radius: var(--radius-sm);
-        font-size: 0.75rem;
-        font-weight: 600;
-        text-transform: capitalize;
-    }
-
-    .badge-doctor {
-        background-color: #dbeafe;
-        color: #1e40af;
-    }
-
-    .badge-admin {
-        background-color: #fee2e2;
-        color: #991b1b;
-    }
-
-    .user-stats {
-        display: flex;
-        gap: var(--spacing-4);
-    }
-
-    .stat {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-    }
-
-    .stat-label {
-        font-size: 0.75rem;
-        color: var(--color-gray-600);
-    }
-
-    .stat-value {
-        font-size: 1.5rem;
-        font-weight: 700;
-        color: var(--color-primary);
-    }
-
-    .btn-delete-small {
-        padding: var(--spacing-3);
-        background-color: var(--color-gray-100);
-        color: var(--color-gray-700);
-        border-radius: var(--radius-md);
-        transition: all 0.2s;
-    }
-
-    .btn-delete-small:hover {
-        background-color: var(--color-error);
-        color: var(--color-white);
-    }
-
-    .btn-delete-small svg {
-        width: 20px;
-        height: 20px;
-    }
-
-    .office-item-small {
+    /* User Table Styles */
+    .user-cell {
         display: flex;
         align-items: center;
         gap: var(--spacing-3);
-        padding: var(--spacing-4);
     }
 
-    .office-icon-small {
+    .user-avatar {
         width: 40px;
         height: 40px;
-        border-radius: var(--radius-md);
-        background-color: var(--color-gray-100);
+        border-radius: 50%;
+        background-color: var(--color-primary-bg);
         color: var(--color-primary);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        font-size: 1.125rem;
+    }
+
+    .btn-icon-only {
+        padding: var(--spacing-2);
+        border-radius: var(--radius-md);
+        background: transparent;
+        color: var(--color-gray-500);
+        transition: all 0.2s;
+    }
+
+    .btn-icon-only:hover {
+        background-color: var(--color-error-bg);
+        color: var(--color-error);
+    }
+
+    /* Offices Grid */
+    .offices-grid {
+        display: grid;
+        gap: var(--spacing-4);
+    }
+
+    .office-card {
+        display: flex;
+        align-items: center;
+        gap: var(--spacing-4);
+        padding: var(--spacing-4);
+        transition: transform 0.2s;
+    }
+
+    .office-card:hover {
+        transform: translateY(-2px);
+    }
+
+    .office-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: var(--radius-md);
+        background-color: var(--color-info-bg);
+        color: var(--color-info);
         display: flex;
         align-items: center;
         justify-content: center;
         flex-shrink: 0;
     }
 
-    .office-icon-small svg {
-        width: 22px;
-        height: 22px;
-    }
-
-    .office-name-small {
+    .office-info h4 {
         font-size: 1rem;
-        font-weight: 700;
         margin-bottom: var(--spacing-1);
     }
 
-    .office-location {
+    .office-info p {
         font-size: 0.875rem;
-        color: var(--color-gray-600);
+        color: var(--color-gray-500);
         margin: 0;
     }
 
-    /* Modal styles (reused from Doctores) */
+    /* Modal */
     .modal-overlay {
         position: fixed;
         top: 0;
@@ -523,52 +503,40 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        z-index: 1000;
-        animation: fadeIn 0.2s ease;
+        z-index: 50;
+        backdrop-filter: blur(4px);
     }
 
     .modal {
-        background-color: var(--color-white);
+        background: white;
         border-radius: var(--radius-xl);
+        width: 100%;
         max-width: 500px;
-        width: 90%;
         box-shadow: var(--shadow-xl);
-        animation: slideInRight 0.3s ease;
+        animation: slideInRight 0.3s ease-out;
     }
 
     .modal-header {
+        padding: var(--spacing-6);
+        border-bottom: 1px solid var(--color-gray-200);
         display: flex;
         justify-content: space-between;
         align-items: center;
-        padding: var(--spacing-6);
-        border-bottom: 1px solid var(--color-gray-200);
     }
 
     .modal-header h2 {
+        font-size: 1.25rem;
         margin: 0;
-        font-size: 1.5rem;
     }
 
     .btn-close {
-        width: 36px;
-        height: 36px;
-        border-radius: var(--radius-md);
-        background-color: var(--color-gray-100);
-        color: var(--color-gray-700);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        transition: all 0.2s;
+        background: transparent;
+        color: var(--color-gray-400);
+        padding: var(--spacing-1);
     }
 
     .btn-close:hover {
-        background-color: var(--color-error);
-        color: var(--color-white);
-    }
-
-    .btn-close svg {
-        width: 20px;
-        height: 20px;
+        color: var(--color-gray-600);
     }
 
     .modal-form {
@@ -577,23 +545,18 @@
 
     .modal-actions {
         display: flex;
-        gap: var(--spacing-3);
         justify-content: flex-end;
-        margin-top: var(--spacing-6);
+        gap: var(--spacing-3);
+        margin-top: var(--spacing-8);
     }
 
-    .loading-container {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        padding: var(--spacing-12);
-        gap: var(--spacing-4);
-    }
-
-    @media (max-width: 968px) {
+    @media (max-width: 1024px) {
         .admin-grid {
             grid-template-columns: 1fr;
+        }
+
+        .header-decoration {
+            display: none;
         }
     }
 </style>
