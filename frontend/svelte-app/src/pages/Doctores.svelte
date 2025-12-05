@@ -24,6 +24,7 @@
   let officeCity = "";
   let officeState = "";
   let officeZipCode = "";
+  let officeImage = ""; // Base64 string
 
   authStore.subscribe((state) => {
     token = state.token || "";
@@ -82,6 +83,7 @@
     officeCity = office.city;
     officeState = office.state;
     officeZipCode = office.zipCode;
+    officeImage = office.image || "";
     showModal = true;
   }
 
@@ -91,6 +93,19 @@
     officeCity = "";
     officeState = "";
     officeZipCode = "";
+    officeImage = "";
+  }
+
+  function handleImageUpload(event: Event) {
+    const input = event.target as HTMLInputElement;
+    if (input.files && input.files[0]) {
+      const file = input.files[0];
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        officeImage = e.target?.result as string;
+      };
+      reader.readAsDataURL(file);
+    }
   }
 
   async function handleSubmit() {
@@ -101,6 +116,7 @@
       state: officeState,
       zipCode: officeZipCode,
       userId,
+      image: officeImage,
     };
 
     try {
@@ -245,20 +261,28 @@
         <div class="card office-card">
           <div class="office-header">
             <div class="office-icon">
-              <svg
-                width="32"
-                height="32"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"
+              {#if office.image}
+                <img
+                  src={office.image}
+                  alt={office.name}
+                  class="office-img-icon"
                 />
-              </svg>
+              {:else}
+                <svg
+                  width="32"
+                  height="32"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"
+                  />
+                </svg>
+              {/if}
             </div>
             <div class="office-title">
               <h3>{office.name}</h3>
@@ -380,6 +404,7 @@
     class="modal-overlay"
     role="dialog"
     aria-modal="true"
+    tabindex="-1"
     on:click={() => (showWelcomeModal = false)}
     on:keydown={(e) => e.key === "Escape" && (showWelcomeModal = false)}
   >
@@ -475,6 +500,7 @@
     class="modal-overlay"
     role="dialog"
     aria-modal="true"
+    tabindex="-1"
     on:click={() => (showModal = false)}
     on:keydown={(e) => e.key === "Escape" && (showModal = false)}
   >
@@ -487,7 +513,11 @@
       <div class="modal-form-container">
         <div class="modal-header">
           <h2>{editingOffice ? "Editar" : "Nuevo"} Consultorio</h2>
-          <button on:click={() => (showModal = false)} class="btn-close">
+          <button
+            on:click={() => (showModal = false)}
+            class="btn-close"
+            aria-label="Cerrar modal"
+          >
             <svg
               width="24"
               height="24"
@@ -506,6 +536,62 @@
         </div>
 
         <form on:submit|preventDefault={handleSubmit} class="modal-form">
+          <div class="form-group">
+            <label for="image">Imagen del Consultorio</label>
+            <div class="image-upload-container">
+              {#if officeImage}
+                <div class="image-preview">
+                  <img src={officeImage} alt="Vista previa" />
+                  <button
+                    type="button"
+                    class="btn-remove-image"
+                    on:click={() => (officeImage = "")}
+                  >
+                    <svg
+                      width="20"
+                      height="20"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M6 18L18 6M6 6l12 12"
+                      />
+                    </svg>
+                  </button>
+                </div>
+              {:else}
+                <div class="upload-placeholder">
+                  <svg
+                    width="48"
+                    height="48"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+                    />
+                  </svg>
+                  <span>Subir imagen</span>
+                </div>
+              {/if}
+              <input
+                type="file"
+                id="image"
+                accept="image/*"
+                on:change={handleImageUpload}
+                class="file-input"
+              />
+            </div>
+          </div>
+
           <div class="form-group">
             <label for="name">Nombre del Consultorio</label>
             <input
@@ -594,6 +680,7 @@
     class="modal-overlay"
     role="dialog"
     aria-modal="true"
+    tabindex="-1"
     on:click={() => (showDeleteModal = false)}
     on:keydown={(e) => e.key === "Escape" && (showDeleteModal = false)}
   >
@@ -605,7 +692,11 @@
     >
       <div class="modal-header">
         <h2>Confirmar Eliminación</h2>
-        <button on:click={() => (showDeleteModal = false)} class="btn-close">
+        <button
+          on:click={() => (showDeleteModal = false)}
+          class="btn-close"
+          aria-label="Cerrar modal"
+        >
           <svg
             width="24"
             height="24"
@@ -768,6 +859,13 @@
     justify-content: center;
     flex-shrink: 0;
     box-shadow: var(--shadow-sm);
+    overflow: hidden;
+  }
+
+  .office-img-icon {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
   }
 
   .office-title h3 {
@@ -840,6 +938,34 @@
   .btn-outline-danger:hover {
     background-color: var(--color-error);
     color: white;
+  }
+
+  /* Empty State */
+  .empty-state {
+    text-align: center;
+    padding: var(--spacing-12);
+    background: white;
+    border-radius: var(--radius-xl);
+    border: 1px dashed var(--color-gray-300);
+    max-width: 600px;
+    margin: 0 auto;
+  }
+
+  .empty-icon-container {
+    width: 80px;
+    height: 80px;
+    background-color: var(--color-gray-50);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto var(--spacing-6);
+    color: var(--color-gray-400);
+  }
+
+  .empty-icon {
+    width: 40px;
+    height: 40px;
   }
 
   /* Modal Styles */
@@ -1017,6 +1143,72 @@
 
   .btn-close:hover {
     color: var(--color-gray-600);
+  }
+
+  /* Image Upload */
+  .image-upload-container {
+    position: relative;
+    width: 100%;
+    height: 200px;
+    border: 2px dashed var(--color-gray-300);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    transition: all 0.2s;
+    background-color: var(--color-gray-50);
+  }
+
+  .image-upload-container:hover {
+    border-color: var(--color-primary);
+    background-color: var(--color-primary-bg);
+  }
+
+  .file-input {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    cursor: pointer;
+    z-index: 10;
+  }
+
+  .upload-placeholder {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: var(--color-gray-500);
+    gap: var(--spacing-2);
+  }
+
+  .image-preview {
+    width: 100%;
+    height: 100%;
+    position: relative;
+  }
+
+  .image-preview img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .btn-remove-image {
+    position: absolute;
+    top: var(--spacing-2);
+    right: var(--spacing-2);
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 50%;
+    padding: var(--spacing-1);
+    color: var(--color-error);
+    z-index: 20;
+    box-shadow: var(--shadow-sm);
   }
 
   /* Delete Modal */
