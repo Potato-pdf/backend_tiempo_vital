@@ -49,6 +49,7 @@ function createAuthStore() {
         logout: () => {
             localStorage.removeItem('token');
             localStorage.removeItem('user');
+            sessionStorage.removeItem('hasSeenWelcome_v2');
             set({
                 isAuthenticated: false,
                 user: null,
