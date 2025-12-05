@@ -5,11 +5,15 @@
     import Navbar from "../components/Navbar.svelte";
 
     let token = "";
-    let users = [];
-    let offices = [];
+    let users: any[] = [];
+    let offices: any[] = [];
     let loading = true;
     let showUserModal = false;
-    let editingUser = null;
+    let showDeleteModal = false;
+    let editingUser: any = null;
+    let userToDelete: string | null = null;
+    let successMessage = "";
+    let errorMessage = "";
 
     // Form fields
     let userName = "";
@@ -58,6 +62,22 @@
         userRol = "doctor";
     }
 
+    function showSuccess(msg: string) {
+        successMessage = msg;
+        errorMessage = "";
+        setTimeout(() => {
+            successMessage = "";
+        }, 3000);
+    }
+
+    function showError(msg: string) {
+        errorMessage = msg;
+        successMessage = "";
+        setTimeout(() => {
+            errorMessage = "";
+        }, 3000);
+    }
+
     async function handleUserSubmit() {
         const data = {
             name: userName,
@@ -70,28 +90,39 @@
         try {
             if (editingUser) {
                 await api.updateUser(token, editingUser.id, data);
+                showSuccess("Usuario actualizado correctamente");
             } else {
                 await api.createUser(token, data);
+                showSuccess("Usuario creado correctamente");
             }
             showUserModal = false;
             await loadUsers();
         } catch (error) {
-            alert("Error al guardar usuario");
+            showError("Error al guardar usuario");
         }
     }
 
-    async function handleDeleteUser(id) {
-        if (confirm("¿Eliminar este usuario?")) {
+    function confirmDeleteUser(id: string) {
+        userToDelete = id;
+        showDeleteModal = true;
+    }
+
+    async function handleDeleteUser() {
+        if (userToDelete) {
             try {
-                await api.deleteUser(token, id);
+                await api.deleteUser(token, userToDelete);
                 await loadUsers();
+                showSuccess("Usuario eliminado correctamente");
             } catch (error) {
-                alert("Error al eliminar usuario");
+                showError("Error al eliminar usuario");
+            } finally {
+                showDeleteModal = false;
+                userToDelete = null;
             }
         }
     }
 
-    function getUserOffices(userId) {
+    function getUserOffices(userId: string) {
         return offices.filter((o) => o.userId === userId);
     }
 </script>
@@ -110,6 +141,46 @@
             <img src="/imagen.jpg" alt="Decoración" class="decoration-img" />
         </div>
     </div>
+
+    {#if successMessage}
+        <div class="alert success fade-in">
+            <svg
+                width="20"
+                height="20"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+            >
+                <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M5 13l4 4L19 7"
+                />
+            </svg>
+            {successMessage}
+        </div>
+    {/if}
+
+    {#if errorMessage}
+        <div class="alert error fade-in">
+            <svg
+                width="20"
+                height="20"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+            >
+                <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                />
+            </svg>
+            {errorMessage}
+        </div>
+    {/if}
 
     {#if loading}
         <div class="loading-container">
@@ -191,8 +262,34 @@
                                     </td>
                                     <td class="text-right">
                                         <button
+                                            on:click={() => {
+                                                editingUser = user;
+                                                userName = user.name;
+                                                userEmail = user.email;
+                                                userRol = user.rol;
+                                                showUserModal = true;
+                                            }}
+                                            class="btn-icon-only text-blue-600 hover:bg-blue-50"
+                                            title="Editar usuario"
+                                        >
+                                            <svg
+                                                width="20"
+                                                height="20"
+                                                fill="none"
+                                                stroke="currentColor"
+                                                viewBox="0 0 24 24"
+                                            >
+                                                <path
+                                                    stroke-linecap="round"
+                                                    stroke-linejoin="round"
+                                                    stroke-width="2"
+                                                    d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                                                />
+                                            </svg>
+                                        </button>
+                                        <button
                                             on:click={() =>
-                                                handleDeleteUser(user.id)}
+                                                confirmDeleteUser(user.id)}
                                             class="btn-icon-only text-red-600 hover:bg-red-50"
                                             title="Eliminar usuario"
                                         >
@@ -260,8 +357,19 @@
 </div>
 
 {#if showUserModal}
-    <div class="modal-overlay" on:click={() => (showUserModal = false)}>
-        <div class="modal" on:click|stopPropagation>
+    <div
+        class="modal-overlay"
+        role="dialog"
+        aria-modal="true"
+        on:click={() => (showUserModal = false)}
+        on:keydown={(e) => e.key === "Escape" && (showUserModal = false)}
+    >
+        <div
+            class="modal"
+            role="document"
+            on:click|stopPropagation
+            on:keydown|stopPropagation
+        >
             <div class="modal-header">
                 <h2>{editingUser ? "Editar" : "Nuevo"} Usuario</h2>
                 <button
@@ -318,7 +426,7 @@
                         id="password"
                         bind:value={userPassword}
                         placeholder="••••••••"
-                        required
+                        required={!editingUser}
                     />
                 </div>
 
@@ -343,6 +451,80 @@
                     </button>
                 </div>
             </form>
+        </div>
+    </div>
+{/if}
+
+<!-- Delete Confirmation Modal -->
+{#if showDeleteModal}
+    <div
+        class="modal-overlay"
+        role="dialog"
+        aria-modal="true"
+        on:click={() => (showDeleteModal = false)}
+        on:keydown={(e) => e.key === "Escape" && (showDeleteModal = false)}
+    >
+        <div
+            class="modal delete-modal"
+            role="document"
+            on:click|stopPropagation
+            on:keydown|stopPropagation
+        >
+            <div class="modal-header">
+                <h2>Confirmar Eliminación</h2>
+                <button
+                    on:click={() => (showDeleteModal = false)}
+                    class="btn-close"
+                >
+                    <svg
+                        width="24"
+                        height="24"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                    >
+                        <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            stroke-width="2"
+                            d="M6 18L18 6M6 6l12 12"
+                        />
+                    </svg>
+                </button>
+            </div>
+            <div class="modal-content">
+                <div class="delete-icon">
+                    <svg
+                        width="48"
+                        height="48"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                    >
+                        <path
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            stroke-width="2"
+                            d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+                        />
+                    </svg>
+                </div>
+                <p>
+                    ¿Estás seguro de que deseas eliminar este usuario? Esta
+                    acción no se puede deshacer.
+                </p>
+            </div>
+            <div class="modal-actions">
+                <button
+                    on:click={() => (showDeleteModal = false)}
+                    class="btn btn-secondary"
+                >
+                    Cancelar
+                </button>
+                <button on:click={handleDeleteUser} class="btn btn-danger">
+                    Eliminar
+                </button>
+            </div>
         </div>
     </div>
 {/if}
@@ -392,6 +574,28 @@
         font-size: 1.125rem;
         color: var(--color-gray-600);
         max-width: 600px;
+    }
+
+    .alert {
+        display: flex;
+        align-items: center;
+        gap: var(--spacing-3);
+        padding: var(--spacing-4);
+        border-radius: var(--radius-md);
+        margin-bottom: var(--spacing-6);
+        font-weight: 500;
+    }
+
+    .alert.success {
+        background-color: var(--color-success-bg);
+        color: #065f46;
+        border: 1px solid #6ee7b7;
+    }
+
+    .alert.error {
+        background-color: var(--color-error-bg);
+        color: #991b1b;
+        border: 1px solid #fca5a5;
     }
 
     .admin-grid {
@@ -447,8 +651,17 @@
     }
 
     .btn-icon-only:hover {
+        background-color: var(--color-gray-100);
+    }
+
+    .btn-icon-only.text-red-600:hover {
         background-color: var(--color-error-bg);
         color: var(--color-error);
+    }
+
+    .btn-icon-only.text-blue-600:hover {
+        background-color: var(--color-info-bg);
+        color: var(--color-info);
     }
 
     /* Offices Grid */
@@ -548,6 +761,35 @@
         justify-content: flex-end;
         gap: var(--spacing-3);
         margin-top: var(--spacing-8);
+    }
+
+    /* Delete Modal */
+    .delete-modal {
+        width: 100%;
+        max-width: 400px;
+        padding: var(--spacing-6);
+    }
+
+    .delete-icon {
+        width: 64px;
+        height: 64px;
+        border-radius: 50%;
+        background-color: var(--color-error-bg);
+        color: var(--color-error);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto var(--spacing-4);
+    }
+
+    .modal-content {
+        text-align: center;
+        margin-bottom: var(--spacing-6);
+    }
+
+    .modal-content p {
+        color: var(--color-gray-600);
+        margin: 0;
     }
 
     @media (max-width: 1024px) {
