@@ -121,7 +121,8 @@ export const createUserController = async (c: Context) => {
             email,
             password,
             rol,
-            office: office || []
+            office: office || [],
+            image: body.image
         };
 
         const createdUser = await userService.createUser(newUser);

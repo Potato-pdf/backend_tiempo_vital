@@ -103,7 +103,8 @@ export const createOfficeController = async (c: Context) => {
             city,
             state,
             zipCode,
-            userId
+            userId,
+            image: body.image
         };
 
         const createdOffice = await officeService.createOffice(newOffice);
