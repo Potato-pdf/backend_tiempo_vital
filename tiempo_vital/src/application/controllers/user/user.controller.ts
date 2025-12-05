@@ -175,6 +175,11 @@ export const updateUserController = async (c: Context) => {
             }, 404);
         }
 
+        // Si se actualiza la contraseña, hashearla
+        if (body.password) {
+            body.password = await Bun.password.hash(body.password);
+        }
+
         // Actualizar usuario
         const updatedUser = await userService.updateUser(id, {
             ...existingUser,
