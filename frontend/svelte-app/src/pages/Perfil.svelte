@@ -15,6 +15,17 @@
     let email = "";
     let password = "";
     let confirmPassword = "";
+    let userImage = "";
+    let secondaryColor = "#1E3A8A"; // Default blue
+
+    const pastelColors = [
+        { name: "Azul", value: "#1E3A8A" },
+        { name: "Verde", value: "#10B981" },
+        { name: "Rosa", value: "#F472B6" },
+        { name: "Morado", value: "#A78BFA" },
+        { name: "Naranja", value: "#FB923C" },
+        { name: "Celeste", value: "#38BDF8" },
+    ];
 
     authStore.subscribe((state) => {
         token = state.token || "";
@@ -25,8 +36,34 @@
         if (user) {
             name = user.name;
             email = user.email;
+            userImage = user.image || "";
+        }
+
+        // Load saved color
+        const savedColor = localStorage.getItem("secondaryColor");
+        if (savedColor) {
+            secondaryColor = savedColor;
+            updateColor(savedColor);
         }
     });
+
+    function updateColor(color: string) {
+        secondaryColor = color;
+        document.documentElement.style.setProperty("--color-secondary", color);
+        localStorage.setItem("secondaryColor", color);
+    }
+
+    function handleImageUpload(event: Event) {
+        const input = event.target as HTMLInputElement;
+        if (input.files && input.files[0]) {
+            const file = input.files[0];
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                userImage = e.target?.result as string;
+            };
+            reader.readAsDataURL(file);
+        }
+    }
 
     async function handleUpdateProfile() {
         if (password && password !== confirmPassword) {
@@ -42,7 +79,11 @@
             name,
             email,
             rol: user.rol, // Keep existing role
+            name,
+            email,
+            rol: user.rol, // Keep existing role
             office: user.office || [], // Keep existing offices
+            image: userImage,
         };
 
         if (password) {
@@ -76,7 +117,11 @@
     <div class="profile-layout">
         <div class="profile-header">
             <div class="avatar-large">
-                {name ? name.charAt(0).toUpperCase() : "U"}
+                {#if userImage}
+                    <img src={userImage} alt={name} class="profile-img" />
+                {:else}
+                    {name ? name.charAt(0).toUpperCase() : "U"}
+                {/if}
             </div>
             <div class="header-info">
                 <h1>Mi Perfil</h1>
@@ -87,6 +132,23 @@
         <div class="card profile-card">
             <div class="card-header">
                 <h2>Información Personal</h2>
+            </div>
+
+            <div class="customization-section">
+                <h3>Personalización</h3>
+                <p>Elige el color secundario de tu interfaz</p>
+                <div class="color-picker">
+                    {#each pastelColors as color}
+                        <button
+                            class="color-option {secondaryColor === color.value
+                                ? 'active'
+                                : ''}"
+                            style="background-color: {color.value}"
+                            on:click={() => updateColor(color.value)}
+                            aria-label="Seleccionar color {color.name}"
+                        ></button>
+                    {/each}
+                </div>
             </div>
 
             {#if successMessage}
@@ -133,6 +195,55 @@
                 on:submit|preventDefault={handleUpdateProfile}
                 class="profile-form"
             >
+                <div class="form-group">
+                    <label for="profileImage">Foto de Perfil</label>
+                    <div class="image-upload-row">
+                        <div class="current-image-preview">
+                            {#if userImage}
+                                <img src={userImage} alt="Preview" />
+                            {:else}
+                                <div class="placeholder-preview">
+                                    <svg
+                                        width="24"
+                                        height="24"
+                                        fill="none"
+                                        stroke="currentColor"
+                                        viewBox="0 0 24 24"
+                                    >
+                                        <path
+                                            stroke-linecap="round"
+                                            stroke-linejoin="round"
+                                            stroke-width="2"
+                                            d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+                                        />
+                                    </svg>
+                                </div>
+                            {/if}
+                        </div>
+                        <div class="upload-controls">
+                            <input
+                                type="file"
+                                id="profileImage"
+                                accept="image/*"
+                                on:change={handleImageUpload}
+                                class="file-input-hidden"
+                            />
+                            <label for="profileImage" class="btn btn-secondary">
+                                Cambiar Foto
+                            </label>
+                            {#if userImage}
+                                <button
+                                    type="button"
+                                    class="btn btn-outline-danger"
+                                    on:click={() => (userImage = "")}
+                                >
+                                    Eliminar
+                                </button>
+                            {/if}
+                        </div>
+                    </div>
+                </div>
+
                 <div class="form-group">
                     <label for="name">Nombre Completo</label>
                     <input
@@ -239,6 +350,13 @@
         align-items: center;
         justify-content: center;
         box-shadow: var(--shadow-lg);
+        overflow: hidden;
+    }
+
+    .profile-img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
     }
 
     .header-info h1 {
@@ -346,5 +464,88 @@
         .form-row {
             grid-template-columns: 1fr;
         }
+    }
+
+    /* Customization Styles */
+    .customization-section {
+        padding: var(--spacing-6);
+        background-color: var(--color-gray-50);
+        border-bottom: 1px solid var(--color-gray-200);
+    }
+
+    .customization-section h3 {
+        font-size: 1rem;
+        margin-bottom: var(--spacing-2);
+    }
+
+    .customization-section p {
+        font-size: 0.875rem;
+        margin-bottom: var(--spacing-4);
+    }
+
+    .color-picker {
+        display: flex;
+        gap: var(--spacing-3);
+        flex-wrap: wrap;
+    }
+
+    .color-option {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        border: 2px solid white;
+        box-shadow: 0 0 0 1px var(--color-gray-300);
+        cursor: pointer;
+        transition: transform 0.2s;
+    }
+
+    .color-option:hover {
+        transform: scale(1.1);
+    }
+
+    .color-option.active {
+        box-shadow:
+            0 0 0 2px var(--color-primary),
+            0 0 0 4px white;
+    }
+
+    /* Image Upload Styles */
+    .image-upload-row {
+        display: flex;
+        align-items: center;
+        gap: var(--spacing-4);
+    }
+
+    .current-image-preview {
+        width: 64px;
+        height: 64px;
+        border-radius: 50%;
+        overflow: hidden;
+        border: 1px solid var(--color-gray-200);
+    }
+
+    .current-image-preview img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .placeholder-preview {
+        width: 100%;
+        height: 100%;
+        background-color: var(--color-gray-100);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--color-gray-400);
+    }
+
+    .file-input-hidden {
+        display: none;
+    }
+
+    .upload-controls {
+        display: flex;
+        gap: var(--spacing-2);
     }
 </style>

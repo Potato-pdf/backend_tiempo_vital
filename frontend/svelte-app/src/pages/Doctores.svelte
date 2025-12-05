@@ -1078,9 +1078,9 @@
   /* Form Modal */
   .form-modal {
     width: 100%;
-    max-width: 900px;
+    max-width: 1200px;
     display: flex;
-    min-height: 500px;
+    min-height: 600px;
   }
 
   .modal-form-container {
@@ -1089,7 +1089,7 @@
   }
 
   .modal-image-side {
-    width: 350px;
+    width: 450px;
     position: relative;
     display: none;
   }
