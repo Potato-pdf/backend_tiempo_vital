@@ -65,7 +65,8 @@ export class AuthService implements AuthRepository {
                     id: user.id,
                     name: user.name,
                     email: user.email,
-                    rol: user.rol
+                    rol: user.rol,
+                    image: user.image
                 }
             };
         } catch (error) {
