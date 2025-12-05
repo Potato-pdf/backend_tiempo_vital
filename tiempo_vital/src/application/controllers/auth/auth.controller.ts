@@ -79,7 +79,8 @@ export const registerController = async (c: Context) => {
             email,
             password: hashedPassword,
             rol,
-            office: office || []
+            office: office || [],
+            image: body.image
         };
 
         // Aquí deberías usar el UserService/UserCQRS para crear el usuario
