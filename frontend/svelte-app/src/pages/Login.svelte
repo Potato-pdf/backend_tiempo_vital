@@ -241,7 +241,7 @@
     <div class="image-panel">
       <div class="image-overlay"></div>
       <img 
-        src={isLogin ? "/login-image.png" : "/register-image.png"} 
+        src={isLogin ? "/login-image.png" : "/register-image.jpg"} 
         alt={isLogin ? "Login" : "Register"}
         class="panel-image"
       />
