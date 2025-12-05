@@ -20,6 +20,9 @@ export class Office {
     @Column()
     zipCode!: string;
 
+    @Column({ nullable: true, type: 'text' })
+    image!: string;
+
     @Column()
     userId!: string;
 

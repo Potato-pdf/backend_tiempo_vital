@@ -17,6 +17,9 @@ export class User {
     @Column()
     rol!: string;
 
+    @Column({ nullable: true, type: 'text' })
+    image!: string;
+
     @OneToMany("Office", "user", {
         cascade: true,
     })
