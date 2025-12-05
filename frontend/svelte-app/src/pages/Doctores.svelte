@@ -33,10 +33,10 @@
   onMount(async () => {
     await loadOffices();
     // Check session storage for welcome modal
-    const hasSeenWelcome = sessionStorage.getItem("hasSeenWelcome");
+    const hasSeenWelcome = sessionStorage.getItem("hasSeenWelcome_v2");
     if (!hasSeenWelcome) {
       showWelcomeModal = true;
-      sessionStorage.setItem("hasSeenWelcome", "true");
+      sessionStorage.setItem("hasSeenWelcome_v2", "true");
     }
   });
 
