@@ -109,16 +109,7 @@
     <div class="form-panel">
       <div class="form-content">
         <div class="logo-header">
-          <div class="logo-circle">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2.5"
-                d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
-              />
-            </svg>
-          </div>
+          <img src="/icono.png" alt="Tiempo Vital" class="logo-img" />
           <h1>Tiempo Vital</h1>
         </div>
 
@@ -126,8 +117,8 @@
           <h2>{isLogin ? "Bienvenido" : "Crear Cuenta"}</h2>
           <p>
             {isLogin
-              ? "Ingresa tus credenciales para continuar"
-              : "Regístrate como doctor en el sistema"}
+              ? "Ingresa tus credenciales para acceder al sistema"
+              : "Regístrate como doctor para gestionar tu consultorio"}
           </p>
         </div>
 
@@ -161,7 +152,7 @@
 
         {#if isLogin}
           <form on:submit|preventDefault={handleLogin} class="auth-form">
-            <div class="input-group">
+            <div class="form-group">
               <label>Correo Electrónico</label>
               <input
                 type="email"
@@ -171,7 +162,7 @@
               />
             </div>
 
-            <div class="input-group">
+            <div class="form-group">
               <label>Contraseña</label>
               <input
                 type="password"
@@ -181,7 +172,11 @@
               />
             </div>
 
-            <button type="submit" class="btn-submit" disabled={loading}>
+            <button
+              type="submit"
+              class="btn btn-primary w-full"
+              disabled={loading}
+            >
               {#if loading}
                 <div class="spinner"></div>
                 Iniciando sesión...
@@ -192,7 +187,7 @@
           </form>
         {:else}
           <form on:submit|preventDefault={handleRegister} class="auth-form">
-            <div class="input-group">
+            <div class="form-group">
               <label>Nombre Completo</label>
               <input
                 type="text"
@@ -202,7 +197,7 @@
               />
             </div>
 
-            <div class="input-group">
+            <div class="form-group">
               <label>Correo Electrónico</label>
               <input
                 type="email"
@@ -213,7 +208,7 @@
             </div>
 
             <div class="input-row">
-              <div class="input-group">
+              <div class="form-group">
                 <label>Contraseña</label>
                 <input
                   type="password"
@@ -223,7 +218,7 @@
                 />
               </div>
 
-              <div class="input-group">
+              <div class="form-group">
                 <label>Confirmar</label>
                 <input
                   type="password"
@@ -234,7 +229,11 @@
               </div>
             </div>
 
-            <button type="submit" class="btn-submit" disabled={loading}>
+            <button
+              type="submit"
+              class="btn btn-primary w-full"
+              disabled={loading}
+            >
               {#if loading}
                 <div class="spinner"></div>
                 Registrando...
@@ -249,7 +248,7 @@
           <p>
             {isLogin ? "¿No tienes cuenta?" : "¿Ya tienes cuenta?"}
             <button type="button" on:click={toggleForm}>
-              {isLogin ? "Regístrate" : "Inicia sesión"}
+              {isLogin ? "Regístrate aquí" : "Inicia sesión"}
             </button>
           </p>
         </div>
@@ -258,9 +257,8 @@
 
     <!-- Image Panel -->
     <div class="image-panel">
-      <div class="image-overlay"></div>
       <img
-        src={isLogin ? "/login-ilustration.jpg" : "/register-image.jpg"}
+        src={isLogin ? "/imagen.jpg" : "/register-image.jpg"}
         alt={isLogin ? "Login" : "Register"}
         class="panel-image"
       />
@@ -269,18 +267,12 @@
 </div>
 
 <style>
-  * {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-  }
-
   .auth-page {
     min-height: 100vh;
     display: flex;
     align-items: center;
     justify-content: center;
-    background: linear-gradient(135deg, #06b6d4 0%, #10b981 100%);
+    background-color: var(--color-gray-50);
     padding: 0;
   }
 
@@ -294,13 +286,13 @@
     position: relative;
   }
 
-  /* Swap layout for register mode */
+  /* Layout remains fixed */
   .auth-container.register-mode .form-panel {
-    order: 2;
+    order: initial;
   }
 
   .auth-container.register-mode .image-panel {
-    order: 1;
+    order: initial;
   }
 
   /* Form Panel */
@@ -310,13 +302,13 @@
     flex-direction: column;
     justify-content: center;
     background: white;
-    transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: all 0.5s ease;
     position: relative;
     z-index: 2;
   }
 
   .form-content {
-    max-width: 450px;
+    max-width: 420px;
     margin: 0 auto;
     width: 100%;
   }
@@ -324,49 +316,36 @@
   .logo-header {
     display: flex;
     align-items: center;
-    gap: 14px;
-    margin-bottom: 48px;
+    gap: 16px;
+    margin-bottom: 40px;
   }
 
-  .logo-circle {
-    width: 56px;
-    height: 56px;
-    background: linear-gradient(135deg, #06b6d4 0%, #10b981 100%);
-    border-radius: 14px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    box-shadow: 0 4px 14px rgba(6, 182, 212, 0.3);
-  }
-
-  .logo-circle svg {
-    width: 32px;
-    height: 32px;
-    stroke: white;
+  .logo-img {
+    height: 48px;
+    width: auto;
+    object-fit: contain;
   }
 
   .logo-header h1 {
-    font-size: 1.875rem;
-    font-weight: 800;
-    background: linear-gradient(135deg, #06b6d4 0%, #10b981 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--color-primary);
+    margin: 0;
   }
 
   .form-header {
-    margin-bottom: 36px;
+    margin-bottom: 32px;
   }
 
   .form-header h2 {
-    font-size: 2.25rem;
-    font-weight: 800;
-    color: #0f172a;
-    margin-bottom: 10px;
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--color-gray-900);
+    margin-bottom: 8px;
   }
 
   .form-header p {
-    color: #64748b;
+    color: var(--color-gray-500);
     font-size: 1rem;
     line-height: 1.5;
   }
@@ -375,149 +354,73 @@
     display: flex;
     align-items: center;
     gap: 12px;
-    padding: 16px 18px;
-    border-radius: 12px;
-    margin-bottom: 28px;
+    padding: 14px 16px;
+    border-radius: var(--radius-md);
+    margin-bottom: 24px;
     font-size: 0.9375rem;
     font-weight: 500;
-    animation: slideIn 0.3s ease;
-  }
-
-  @keyframes slideIn {
-    from {
-      opacity: 0;
-      transform: translateY(-10px);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
+    animation: fadeIn 0.3s ease;
   }
 
   .alert svg {
-    width: 22px;
-    height: 22px;
+    width: 20px;
+    height: 20px;
     flex-shrink: 0;
   }
 
   .alert.success {
-    background: #d1fae5;
+    background: var(--color-success-bg);
     color: #065f46;
-    border: 2px solid #6ee7b7;
+    border: 1px solid #6ee7b7;
   }
 
   .alert.error {
-    background: #fee2e2;
+    background: var(--color-error-bg);
     color: #991b1b;
-    border: 2px solid #fca5a5;
+    border: 1px solid #fca5a5;
   }
 
   .auth-form {
     display: flex;
     flex-direction: column;
-    gap: 24px;
-  }
-
-  .input-group {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-  }
-
-  .input-group label {
-    font-size: 0.9375rem;
-    font-weight: 600;
-    color: #1e293b;
-  }
-
-  .input-group input {
-    padding: 14px 18px;
-    border: 2px solid #e2e8f0;
-    border-radius: 12px;
-    font-size: 1rem;
-    transition: all 0.2s;
-    background: #f8fafc;
-  }
-
-  .input-group input:focus {
-    outline: none;
-    border-color: #06b6d4;
-    background: white;
-    box-shadow: 0 0 0 4px rgba(6, 182, 212, 0.1);
+    gap: 20px;
   }
 
   .input-row {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 18px;
+    gap: 16px;
   }
 
-  .btn-submit {
-    margin-top: 12px;
-    padding: 16px;
-    background: linear-gradient(135deg, #06b6d4 0%, #10b981 100%);
-    color: white;
-    border: none;
-    border-radius: 12px;
-    font-size: 1.0625rem;
-    font-weight: 700;
-    cursor: pointer;
-    transition: all 0.3s;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-    box-shadow: 0 4px 16px rgba(6, 182, 212, 0.4);
-  }
-
-  .btn-submit:hover:not(:disabled) {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 24px rgba(6, 182, 212, 0.5);
-  }
-
-  .btn-submit:disabled {
-    opacity: 0.7;
-    cursor: not-allowed;
-  }
-
-  .spinner {
-    width: 18px;
-    height: 18px;
-    border: 2px solid rgba(255, 255, 255, 0.3);
-    border-top-color: white;
-    border-radius: 50%;
-    animation: spin 0.6s linear infinite;
-  }
-
-  @keyframes spin {
-    to {
-      transform: rotate(360deg);
-    }
+  .btn-primary {
+    padding: 14px;
+    font-size: 1rem;
+    margin-top: 8px;
   }
 
   .form-toggle {
-    margin-top: 28px;
+    margin-top: 32px;
     text-align: center;
   }
 
   .form-toggle p {
-    color: #64748b;
-    font-size: 1rem;
+    color: var(--color-gray-600);
+    font-size: 0.9375rem;
   }
 
   .form-toggle button {
     background: none;
     border: none;
-    color: #06b6d4;
-    font-weight: 700;
+    color: var(--color-primary);
+    font-weight: 600;
     cursor: pointer;
-    margin-left: 6px;
+    margin-left: 4px;
     transition: color 0.2s;
-    font-size: 1rem;
+    font-size: 0.9375rem;
   }
 
   .form-toggle button:hover {
-    color: #0891b2;
+    color: var(--color-primary-dark);
     text-decoration: underline;
   }
 
@@ -525,7 +428,7 @@
   .image-panel {
     position: relative;
     overflow: hidden;
-    transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    background-color: var(--color-gray-100);
   }
 
   .panel-image {
@@ -533,28 +436,12 @@
     height: 100%;
     object-fit: cover;
     object-position: center;
-    transition: opacity 0.4s ease;
-  }
-
-  .image-overlay {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: linear-gradient(
-      135deg,
-      rgba(6, 182, 212, 0.15) 0%,
-      rgba(16, 185, 129, 0.15) 100%
-    );
-    z-index: 1;
-    pointer-events: none;
   }
 
   /* Responsive */
   @media (max-width: 1024px) {
     .form-panel {
-      padding: 50px 60px;
+      padding: 50px 40px;
     }
   }
 
@@ -575,25 +462,7 @@
     }
 
     .form-panel {
-      padding: 60px 40px;
-    }
-  }
-
-  @media (max-width: 640px) {
-    .form-panel {
-      padding: 40px 24px;
-    }
-
-    .form-header h2 {
-      font-size: 1.875rem;
-    }
-
-    .input-row {
-      grid-template-columns: 1fr;
-    }
-
-    .logo-header h1 {
-      font-size: 1.5rem;
+      padding: 60px 24px;
     }
   }
 </style>
