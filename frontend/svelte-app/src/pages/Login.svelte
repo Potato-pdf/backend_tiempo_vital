@@ -33,7 +33,7 @@
 
       if (response.success) {
         authStore.login(response.user, response.token);
-        
+
         if (response.user.rol === "admin") {
           navigate("/administracion");
         } else {
@@ -77,12 +77,12 @@
         successMessage = "¡Registro exitoso! Por favor inicia sesión.";
         isLogin = true;
         loginEmail = registerEmail;
-        
+
         registerName = "";
         registerEmail = "";
         registerPassword = "";
         registerConfirmPassword = "";
-        
+
         setTimeout(() => {
           successMessage = "";
         }, 5000);
@@ -111,7 +111,12 @@
         <div class="logo-header">
           <div class="logo-circle">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2.5"
+                d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+              />
             </svg>
           </div>
           <h1>Tiempo Vital</h1>
@@ -119,13 +124,22 @@
 
         <div class="form-header">
           <h2>{isLogin ? "Bienvenido" : "Crear Cuenta"}</h2>
-          <p>{isLogin ? "Ingresa tus credenciales para continuar" : "Regístrate como doctor en el sistema"}</p>
+          <p>
+            {isLogin
+              ? "Ingresa tus credenciales para continuar"
+              : "Regístrate como doctor en el sistema"}
+          </p>
         </div>
 
         {#if successMessage}
           <div class="alert success">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+              />
             </svg>
             <span>{successMessage}</span>
           </div>
@@ -134,7 +148,12 @@
         {#if error}
           <div class="alert error">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+              />
             </svg>
             <span>{error}</span>
           </div>
@@ -240,8 +259,8 @@
     <!-- Image Panel -->
     <div class="image-panel">
       <div class="image-overlay"></div>
-      <img 
-        src={isLogin ? "/login-image.png" : "/register-image.jpg"} 
+      <img
+        src={isLogin ? "/login-ilustration.jpg" : "/register-image.jpg"}
         alt={isLogin ? "Login" : "Register"}
         class="panel-image"
       />
@@ -471,7 +490,9 @@
   }
 
   @keyframes spin {
-    to { transform: rotate(360deg); }
+    to {
+      transform: rotate(360deg);
+    }
   }
 
   .form-toggle {
@@ -521,7 +542,11 @@
     left: 0;
     right: 0;
     bottom: 0;
-    background: linear-gradient(135deg, rgba(6, 182, 212, 0.15) 0%, rgba(16, 185, 129, 0.15) 100%);
+    background: linear-gradient(
+      135deg,
+      rgba(6, 182, 212, 0.15) 0%,
+      rgba(16, 185, 129, 0.15) 100%
+    );
     z-index: 1;
     pointer-events: none;
   }
